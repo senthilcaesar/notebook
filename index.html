@@ -7,7 +7,7 @@
   <meta name="description" content="A personal flashcard notebook synced to Firebase Firestore." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Shadows+Into+Light&family=Caveat:wght@400;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
 
   <!-- Firebase v9 SDK (compat shims — no build step required) -->
@@ -23,18 +23,18 @@
 
     :root {
       --cream:          #fdf8ed;
-      --paper:          #2b4a2b;  /* chalkboard green */
-      --line-color:     rgba(255,255,255,0.12); /* faint chalk lines */
-      --margin-color:   #e8c84a;  /* chalk yellow margin */
-      --pencil:         #f0ede6;  /* chalk white */
-      --pencil-light:   #c8c4bb;  /* dimmer chalk */
+      --paper:          #fffdf5;
+      --line-color:     #c8daf0;
+      --margin-color:   #f8a0a0;
+      --pencil:         #3b3224;
+      --pencil-light:   #6b5e4e;
       --accent-desk:    #4a7c59;
-      --shadow:         rgba(0,0,0,0.35);
+      --shadow:         rgba(60,45,20,0.14);
       --tag-coding:     #3b82f6;
       --tag-general:    #6366f1;
       --tag-research:   #ec4899;
       --tag-other:      #f97316;
-      --font-hand:      'Shadows Into Light', cursive; /* chalk font */
+      --font-hand:      'Caveat', cursive;
       --font-ui:        'Inter', sans-serif;
     }
 
@@ -259,8 +259,7 @@
     .card {
       position: relative; background: var(--paper);
       border-radius: 3px 6px 6px 3px;
-      box-shadow: 3px 3px 12px var(--shadow), 0 8px 32px rgba(0,0,0,0.3),
-                  inset 0 0 60px rgba(0,0,0,0.08);
+      box-shadow: 3px 3px 8px var(--shadow), 0 8px 32px rgba(60,45,20,0.12);
       overflow: hidden; transition: transform 0.25s ease, box-shadow 0.25s ease;
       display: flex; flex-direction: column;
     }
@@ -284,9 +283,9 @@
     }
     .hole {
       width: 10px; height: 10px; border-radius: 50%;
-      background: rgba(0,0,0,0.4);
-      border: 1px solid rgba(255,255,255,0.15);
-      box-shadow: inset 0 1px 3px rgba(0,0,0,0.5);
+      background: rgba(255,255,255,0.7);
+      border: 1px solid rgba(0,0,0,0.12);
+      box-shadow: inset 0 1px 3px rgba(0,0,0,0.2), 0 1px 0 rgba(255,255,255,0.8);
     }
 
     /* Ruled lines */
@@ -300,7 +299,7 @@
     }
 
     .card-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 10px; gap: 8px; }
-    .card-date { font-family: var(--font-hand); font-size: 0.88rem; color: rgba(255,255,255,0.45); }
+    .card-date { font-family: var(--font-hand); font-size: 0.88rem; color: var(--pencil-light); }
 
     .category-badge {
       display: inline-flex; align-items: center; gap: 4px;
@@ -314,35 +313,33 @@
     .badge-other    { background: var(--tag-other);    }
 
     .card-title {
-      font-family: var(--font-hand); font-size: 1.35rem; font-weight: 400;
-      color: #ffffff; line-height: 1.35; margin-bottom: 8px; word-break: break-word;
-      text-shadow: 0 0 8px rgba(255,255,255,0.25); /* soft chalk glow */
+      font-family: var(--font-hand); font-size: 1.3rem; font-weight: 700;
+      color: var(--pencil); line-height: 1.35; margin-bottom: 8px; word-break: break-word;
     }
     .card-body {
-      font-family: var(--font-hand); font-size: 1.1rem; color: #dedad2;
-      line-height: 1.85; word-break: break-word; white-space: pre-wrap;
-      text-shadow: 0 0 6px rgba(255,255,255,0.15);
+      font-family: var(--font-hand); font-size: 1.03rem; color: var(--pencil-light);
+      line-height: 1.75; word-break: break-word; white-space: pre-wrap;
     }
 
     .card-footer {
       display: flex; align-items: center; justify-content: flex-end;
       gap: 6px; padding: 8px 12px 10px 56px;
-      border-top: 1px dashed rgba(255,255,255,0.12);
-      background: rgba(0,0,0,0.15);
+      border-top: 1px dashed rgba(0,0,0,0.08);
+      background: rgba(0,0,0,0.015);
     }
 
     .btn-icon {
       display: flex; align-items: center; justify-content: center;
       width: 30px; height: 30px; border-radius: 50%;
-      border: 1px solid rgba(255,255,255,0.2);
-      background: rgba(255,255,255,0.1); cursor: pointer;
-      font-size: 0.76rem; color: rgba(255,255,255,0.6);
+      border: 1px solid rgba(0,0,0,0.1);
+      background: rgba(255,255,255,0.7); cursor: pointer;
+      font-size: 0.76rem; color: var(--pencil-light);
       transition: all 0.18s ease;
     }
-    .btn-icon:hover { background: rgba(255,255,255,0.2); color: #fff; transform: scale(1.12); }
-    .btn-icon.copy-btn.copied  { color: #4ade80; border-color: #4ade80; }
-    .btn-icon.delete-btn:hover { color: #f87171; border-color: #f87171; }
-    .btn-icon.edit-btn:hover   { color: #93c5fd; border-color: #93c5fd; }
+    .btn-icon:hover { background: #fff; transform: scale(1.12); }
+    .btn-icon.copy-btn.copied  { color: #16a34a; border-color: #16a34a; }
+    .btn-icon.delete-btn:hover { color: #ef4444; border-color: #ef4444; }
+    .btn-icon.edit-btn:hover   { color: var(--tag-coding); border-color: var(--tag-coding); }
 
     /* Empty state */
     .empty-state {
