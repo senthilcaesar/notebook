@@ -1,0 +1,904 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>My Notebook Flashcards</title>
+  <meta name="description" content="A personal flashcard notebook synced to Firebase Firestore." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+
+  <!-- Firebase v9 SDK (compat shims — no build step required) -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+
+  <style>
+    /* ───────────────────────────────────────────
+       RESET & DESIGN TOKENS
+    ─────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --cream:          #fdf8ed;
+      --paper:          #fffdf5;
+      --line-color:     #c8daf0;
+      --margin-color:   #f8a0a0;
+      --pencil:         #3b3224;
+      --pencil-light:   #6b5e4e;
+      --accent-desk:    #4a7c59;
+      --shadow:         rgba(60,45,20,0.14);
+      --tag-coding:     #3b82f6;
+      --tag-general:    #6366f1;
+      --tag-research:   #ec4899;
+      --tag-other:      #f97316;
+      --font-hand:      'Caveat', cursive;
+      --font-ui:        'Inter', sans-serif;
+    }
+
+    body {
+      min-height: 100vh;
+      background: var(--accent-desk);
+      background-image:
+        radial-gradient(ellipse at 20% 50%, #3a6b4a 0%, transparent 60%),
+        radial-gradient(ellipse at 80% 20%, #2d5c3d 0%, transparent 50%);
+      font-family: var(--font-ui);
+      color: var(--pencil);
+    }
+
+    /* ── Setup banner ── */
+    #setupBanner {
+      display: none;
+      align-items: center;
+      gap: 10px;
+      background: #fef3c7;
+      border-bottom: 2px solid #f59e0b;
+      padding: 10px 24px;
+      font-size: 0.88rem;
+      color: #78350f;
+    }
+    #setupBanner.show { display: flex; }
+    #setupBanner a { color: #92400e; font-weight: 600; }
+    #setupBanner i { flex-shrink: 0; }
+
+    /* ── Auth loading / sign-in screens ── */
+    #authScreen {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 70vh;
+      gap: 20px;
+      padding: 24px;
+    }
+    #authScreen.show { display: flex; }
+
+    #appShell { display: none; }
+    #appShell.show { display: block; }
+
+    .signin-card {
+      background: var(--paper);
+      border-radius: 12px;
+      padding: 48px 40px;
+      text-align: center;
+      max-width: 380px;
+      width: 100%;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.25);
+      background-image: repeating-linear-gradient(
+        to bottom, transparent 0px, transparent 27px,
+        var(--line-color) 27px, var(--line-color) 28px
+      );
+      background-size: 100% 28px;
+      background-position: 0 60px;
+    }
+    .signin-card .logo { font-size: 3.5rem; margin-bottom: 12px; }
+    .signin-card h2 {
+      font-family: var(--font-hand);
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--pencil);
+      margin-bottom: 6px;
+    }
+    .signin-card p {
+      color: var(--pencil-light);
+      font-size: 0.92rem;
+      margin-bottom: 28px;
+    }
+    .btn-google {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 13px 28px;
+      border-radius: 28px;
+      border: 1.5px solid rgba(0,0,0,0.12);
+      background: #fff;
+      cursor: pointer;
+      font-family: var(--font-ui);
+      font-size: 0.92rem;
+      font-weight: 600;
+      color: var(--pencil);
+      transition: all 0.2s ease;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+    }
+    .btn-google:hover {
+      background: var(--cream);
+      box-shadow: 0 4px 16px rgba(0,0,0,0.18);
+      transform: translateY(-2px);
+    }
+    .btn-google img { width: 20px; height: 20px; }
+
+    /* ───────────────────────────────────────────
+       HEADER
+    ─────────────────────────────────────────── */
+    header {
+      background: rgba(0,0,0,0.2);
+      backdrop-filter: blur(8px);
+      padding: 14px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 10px;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .header-left .logo-icon { font-size: 1.8rem; }
+    .header-left h1 {
+      font-family: var(--font-hand);
+      font-size: 1.75rem;
+      font-weight: 700;
+      color: #fff;
+      text-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    /* Category filter pills */
+    .filter-bar { display: flex; gap: 7px; flex-wrap: wrap; }
+    .filter-pill {
+      border: none; cursor: pointer;
+      padding: 5px 13px;
+      border-radius: 20px;
+      font-family: var(--font-ui); font-size: 0.76rem; font-weight: 500;
+      transition: all 0.2s ease;
+      background: rgba(255,255,255,0.15);
+      color: rgba(255,255,255,0.85);
+      border: 1.5px solid rgba(255,255,255,0.2);
+    }
+    .filter-pill:hover, .filter-pill.active {
+      background: #fff; color: var(--pencil);
+      border-color: #fff; transform: translateY(-1px);
+      box-shadow: 0 3px 8px rgba(0,0,0,0.2);
+    }
+
+    .btn-add {
+      display: flex; align-items: center; gap: 6px;
+      padding: 7px 16px; border-radius: 24px; border: none; cursor: pointer;
+      background: #fff; color: var(--accent-desk);
+      font-family: var(--font-ui); font-size: 0.82rem; font-weight: 600;
+      transition: all 0.2s ease; box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    }
+    .btn-add:hover { background: var(--cream); transform: translateY(-1px); }
+
+    /* User avatar chip */
+    .user-chip {
+      display: flex; align-items: center; gap: 8px;
+      background: rgba(255,255,255,0.12);
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 24px;
+      padding: 4px 12px 4px 5px;
+      color: rgba(255,255,255,0.9);
+      font-size: 0.8rem; font-weight: 500;
+    }
+    .user-chip img {
+      width: 26px; height: 26px;
+      border-radius: 50%;
+      border: 1.5px solid rgba(255,255,255,0.4);
+    }
+    .user-chip .user-name { max-width: 120px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+    .btn-signout {
+      background: none; border: 1px solid rgba(255,255,255,0.3);
+      color: rgba(255,255,255,0.7); border-radius: 20px;
+      padding: 5px 12px; font-size: 0.75rem; cursor: pointer;
+      font-family: var(--font-ui); transition: all 0.2s;
+    }
+    .btn-signout:hover { background: rgba(255,255,255,0.1); color: #fff; }
+
+    /* ── Search & count ── */
+    .search-wrap {
+      padding: 14px 24px 0;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .search-input {
+      flex: 1; max-width: 400px;
+      padding: 8px 14px 8px 36px;
+      border-radius: 24px; border: none;
+      font-family: var(--font-ui); font-size: 0.87rem;
+      background: rgba(255,255,255,0.9); color: var(--pencil);
+      outline: none; box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='15' height='15' viewBox='0 0 24 24' fill='none' stroke='%236b5e4e' stroke-width='2'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cline x1='21' y1='21' x2='16.65' y2='16.65'/%3E%3C/svg%3E");
+      background-repeat: no-repeat; background-position: 11px center;
+    }
+    .search-input:focus { background-color: #fff; box-shadow: 0 0 0 3px rgba(255,255,255,0.4); }
+    .card-count { font-size: 0.8rem; color: rgba(255,255,255,0.65); font-weight: 500; }
+
+    /* ── Sync indicator ── */
+    .sync-dot {
+      display: inline-block; width: 8px; height: 8px; border-radius: 50%;
+      background: #4ade80; box-shadow: 0 0 6px #4ade80;
+      margin-right: 4px;
+    }
+    .sync-dot.syncing { background: #fbbf24; box-shadow: 0 0 6px #fbbf24; animation: pulse 1s infinite; }
+    .sync-dot.error   { background: #f87171; box-shadow: 0 0 6px #f87171; }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+    .sync-label { font-size: 0.72rem; color: rgba(255,255,255,0.6); }
+
+    /* ───────────────────────────────────────────
+       CARDS GRID
+    ─────────────────────────────────────────── */
+    .cards-grid {
+      padding: 22px 24px 48px;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 24px;
+    }
+
+    .card {
+      position: relative; background: var(--paper);
+      border-radius: 3px 6px 6px 3px;
+      box-shadow: 3px 3px 8px var(--shadow), 0 8px 32px rgba(60,45,20,0.12);
+      overflow: hidden; transition: transform 0.25s ease, box-shadow 0.25s ease;
+      display: flex; flex-direction: column;
+    }
+    .card:hover {
+      transform: translateY(-5px) rotate(0.3deg);
+      box-shadow: 5px 12px 28px var(--shadow), 0 20px 48px rgba(60,45,20,0.15);
+    }
+
+    /* Red margin line */
+    .card::before {
+      content: ''; position: absolute; left: 44px; top: 0; bottom: 0;
+      width: 1.5px; background: var(--margin-color); opacity: 0.7; z-index: 1;
+    }
+
+    /* Spiral holes */
+    .card-holes {
+      position: absolute; left: 14px; top: 0; bottom: 0; width: 16px;
+      display: flex; flex-direction: column;
+      justify-content: space-evenly; align-items: center;
+      z-index: 2; padding: 12px 0;
+    }
+    .hole {
+      width: 10px; height: 10px; border-radius: 50%;
+      background: rgba(255,255,255,0.7);
+      border: 1px solid rgba(0,0,0,0.12);
+      box-shadow: inset 0 1px 3px rgba(0,0,0,0.2), 0 1px 0 rgba(255,255,255,0.8);
+    }
+
+    /* Ruled lines */
+    .card-content {
+      position: relative; padding: 14px 16px 14px 56px; flex: 1;
+      background-image: repeating-linear-gradient(
+        to bottom, transparent 0px, transparent 27px,
+        var(--line-color) 27px, var(--line-color) 28px
+      );
+      background-size: 100% 28px; background-position: 0 32px;
+    }
+
+    .card-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 10px; gap: 8px; }
+    .card-date { font-family: var(--font-hand); font-size: 0.88rem; color: var(--pencil-light); }
+
+    .category-badge {
+      display: inline-flex; align-items: center; gap: 4px;
+      padding: 3px 10px; border-radius: 12px;
+      font-size: 0.7rem; font-weight: 600; letter-spacing: 0.4px;
+      text-transform: uppercase; color: #fff; white-space: nowrap; flex-shrink: 0;
+    }
+    .badge-coding   { background: var(--tag-coding);   }
+    .badge-general  { background: var(--tag-general);  }
+    .badge-research { background: var(--tag-research); }
+    .badge-other    { background: var(--tag-other);    }
+
+    .card-title {
+      font-family: var(--font-hand); font-size: 1.3rem; font-weight: 700;
+      color: var(--pencil); line-height: 1.35; margin-bottom: 8px; word-break: break-word;
+    }
+    .card-body {
+      font-family: var(--font-hand); font-size: 1.03rem; color: var(--pencil-light);
+      line-height: 1.75; word-break: break-word; white-space: pre-wrap;
+    }
+
+    .card-footer {
+      display: flex; align-items: center; justify-content: flex-end;
+      gap: 6px; padding: 8px 12px 10px 56px;
+      border-top: 1px dashed rgba(0,0,0,0.08);
+      background: rgba(0,0,0,0.015);
+    }
+
+    .btn-icon {
+      display: flex; align-items: center; justify-content: center;
+      width: 30px; height: 30px; border-radius: 50%;
+      border: 1px solid rgba(0,0,0,0.1);
+      background: rgba(255,255,255,0.7); cursor: pointer;
+      font-size: 0.76rem; color: var(--pencil-light);
+      transition: all 0.18s ease;
+    }
+    .btn-icon:hover { background: #fff; transform: scale(1.12); }
+    .btn-icon.copy-btn.copied  { color: #16a34a; border-color: #16a34a; }
+    .btn-icon.delete-btn:hover { color: #ef4444; border-color: #ef4444; }
+    .btn-icon.edit-btn:hover   { color: var(--tag-coding); border-color: var(--tag-coding); }
+
+    /* Empty state */
+    .empty-state {
+      grid-column: 1 / -1; text-align: center;
+      padding: 80px 24px; color: rgba(255,255,255,0.6);
+    }
+    .empty-state i { font-size: 4rem; margin-bottom: 16px; display: block; }
+    .empty-state p { font-size: 1.1rem; }
+
+    /* ───────────────────────────────────────────
+       MODAL
+    ─────────────────────────────────────────── */
+    .modal-overlay {
+      position: fixed; inset: 0;
+      background: rgba(20,40,30,0.65); backdrop-filter: blur(6px);
+      z-index: 100; display: flex; align-items: center; justify-content: center;
+      padding: 16px; opacity: 0; pointer-events: none; transition: opacity 0.25s ease;
+    }
+    .modal-overlay.open { opacity: 1; pointer-events: all; }
+
+    .modal {
+      background: var(--paper); border-radius: 8px;
+      box-shadow: 0 24px 64px rgba(0,0,0,0.35);
+      width: 100%; max-width: 520px; padding: 30px;
+      position: relative;
+      background-image: repeating-linear-gradient(
+        to bottom, transparent 0px, transparent 27px,
+        var(--line-color) 27px, var(--line-color) 28px
+      );
+      background-size: 100% 28px; background-position: 0 58px;
+      transform: translateY(24px); transition: transform 0.25s ease;
+    }
+    .modal-overlay.open .modal { transform: translateY(0); }
+
+    .modal h2 { font-family: var(--font-hand); font-size: 1.75rem; font-weight: 700; color: var(--pencil); margin-bottom: 22px; }
+
+    .form-group { margin-bottom: 16px; }
+    .form-group label {
+      display: block; font-size: 0.78rem; font-weight: 600; color: var(--pencil-light);
+      letter-spacing: 0.6px; text-transform: uppercase; margin-bottom: 5px;
+    }
+    .form-group input, .form-group textarea, .form-group select {
+      width: 100%; border: none; border-bottom: 2px solid var(--line-color);
+      background: transparent; font-family: var(--font-hand);
+      font-size: 1.1rem; color: var(--pencil); padding: 4px 2px;
+      outline: none; transition: border-color 0.2s; resize: vertical;
+    }
+    .form-group input:focus, .form-group textarea:focus, .form-group select:focus { border-bottom-color: var(--accent-desk); }
+    .form-group textarea { min-height: 100px; line-height: 1.75; }
+    .form-group select {
+      cursor: pointer; appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236b5e4e' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+      background-repeat: no-repeat; background-position: right 4px center; padding-right: 24px;
+    }
+
+    .form-row { display: flex; gap: 16px; }
+    .form-row .form-group { flex: 1; }
+
+    .modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 22px; }
+    .btn-cancel {
+      padding: 8px 20px; border-radius: 24px; border: 1.5px solid rgba(0,0,0,0.15);
+      background: transparent; cursor: pointer; font-family: var(--font-ui);
+      font-size: 0.84rem; font-weight: 500; color: var(--pencil-light); transition: all 0.18s;
+    }
+    .btn-cancel:hover { background: rgba(0,0,0,0.05); }
+    .btn-save {
+      padding: 8px 22px; border-radius: 24px; border: none; cursor: pointer;
+      background: var(--accent-desk); color: #fff; font-family: var(--font-ui);
+      font-size: 0.84rem; font-weight: 600; transition: all 0.18s;
+      box-shadow: 0 2px 8px rgba(74,124,89,0.35);
+    }
+    .btn-save:hover { background: #3a6b4a; transform: translateY(-1px); }
+    .btn-save:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+    .btn-close-modal {
+      position: absolute; top: 12px; right: 12px;
+      background: none; border: none; cursor: pointer;
+      font-size: 1.05rem; color: var(--pencil-light); opacity: 0.6; transition: opacity 0.18s;
+    }
+    .btn-close-modal:hover { opacity: 1; }
+
+    /* ── Toast ── */
+    .toast {
+      position: fixed; bottom: 24px; right: 24px;
+      background: #1f2937; color: #fff; padding: 10px 18px;
+      border-radius: 24px; font-size: 0.84rem; font-weight: 500;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+      transform: translateY(60px); opacity: 0;
+      transition: all 0.3s ease; z-index: 200;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .toast.show  { transform: translateY(0); opacity: 1; }
+    .toast.ok    { background: #16a34a; }
+    .toast.error { background: #dc2626; }
+
+    /* ── Responsive ── */
+    @media (max-width: 600px) {
+      header { padding: 12px 14px; }
+      .cards-grid { padding: 14px; gap: 16px; }
+      .search-wrap { padding: 10px 14px 0; }
+      .modal { padding: 22px 16px; }
+      .form-row { flex-direction: column; gap: 0; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ─── SETUP BANNER ──────────────────────────────── -->
+<div id="setupBanner">
+  <i class="fa fa-triangle-exclamation"></i>
+  <span>
+    <strong>Firebase not configured.</strong>
+    Open <code>flashcards.html</code> in a text editor, find the <code>firebaseConfig</code> block near the top of the &lt;script&gt;, and paste in your project credentials.
+    See <a href="firebase-setup.md" target="_blank">firebase-setup.md</a> for step-by-step instructions.
+  </span>
+</div>
+
+<!-- ─── SIGN-IN SCREEN ─────────────────────────────── -->
+<div id="authScreen">
+  <div class="signin-card">
+    <div class="logo">📓</div>
+    <h2>My Notebook</h2>
+    <p>Sign in to access your flashcards from any device.</p>
+    <button class="btn-google" id="googleSignInBtn">
+      <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" />
+      Sign in with Google
+    </button>
+  </div>
+</div>
+
+<!-- ─── MAIN APP ───────────────────────────────────── -->
+<div id="appShell">
+
+  <!-- HEADER -->
+  <header>
+    <div class="header-left">
+      <span class="logo-icon">📓</span>
+      <h1>My Notebook</h1>
+    </div>
+    <div class="header-right">
+      <!-- Sync status -->
+      <span id="syncStatus" style="display:flex;align-items:center;gap:4px;">
+        <span class="sync-dot syncing" id="syncDot"></span>
+        <span class="sync-label" id="syncLabel">Connecting…</span>
+      </span>
+
+      <!-- Category filter pills -->
+      <div class="filter-bar" role="group" aria-label="Filter by category">
+        <button class="filter-pill active" data-filter="all">All</button>
+        <button class="filter-pill" data-filter="coding">💻 Coding</button>
+        <button class="filter-pill" data-filter="general">📌 General</button>
+        <button class="filter-pill" data-filter="research">🔬 Research</button>
+        <button class="filter-pill" data-filter="other">🗂 Other</button>
+      </div>
+
+      <button class="btn-add" id="openModalBtn">
+        <i class="fa fa-plus"></i> New Card
+      </button>
+
+      <!-- User info -->
+      <div class="user-chip" id="userChip">
+        <img id="userAvatar" src="" alt="avatar" />
+        <span class="user-name" id="userName"></span>
+      </div>
+      <button class="btn-signout" id="signOutBtn">Sign out</button>
+    </div>
+  </header>
+
+  <!-- SEARCH -->
+  <div class="search-wrap">
+    <input type="search" id="searchInput" class="search-input" placeholder="Search cards…" aria-label="Search flashcards" />
+    <span class="card-count" id="cardCount"></span>
+  </div>
+
+  <!-- CARDS -->
+  <main class="cards-grid" id="cardsGrid" aria-label="Flashcards"></main>
+
+</div><!-- /appShell -->
+
+<!-- ─── MODAL ─────────────────────────────────────── -->
+<div class="modal-overlay" id="modalOverlay" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+  <div class="modal">
+    <button class="btn-close-modal" id="closeModalBtn" aria-label="Close"><i class="fa fa-times"></i></button>
+    <h2 id="modalTitle">✏️ New Flashcard</h2>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="inputTitle">Title</label>
+        <input type="text" id="inputTitle" placeholder="Topic or heading…" maxlength="80" autocomplete="off" />
+      </div>
+      <div class="form-group">
+        <label for="inputCategory">Category</label>
+        <select id="inputCategory">
+          <option value="coding">💻 Coding</option>
+          <option value="general" selected>📌 General</option>
+          <option value="research">🔬 Research</option>
+          <option value="other">🗂 Other</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="inputNote">Note</label>
+      <textarea id="inputNote" placeholder="Jot down your notes here…"></textarea>
+    </div>
+
+    <div class="form-group">
+      <label for="inputDate">Date</label>
+      <input type="date" id="inputDate" />
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn-cancel" id="cancelBtn">Cancel</button>
+      <button class="btn-save" id="saveBtn">Save Card</button>
+    </div>
+  </div>
+</div>
+
+<!-- ─── TOAST ──────────────────────────────────────── -->
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<!-- ─────────────────────────────────────────────────
+     SCRIPT — Firebase + App Logic
+───────────────────────────────────────────────────── -->
+<script>
+  /* ══════════════════════════════════════════════════
+     🔥 FIREBASE CONFIG — replace with your own values
+        Get them from: Firebase Console → Project Settings → Your Apps → Web
+     ══════════════════════════════════════════════════ */
+  const firebaseConfig = {
+    apiKey: "AIzaSyCy5_vonqm4GNrOw-sSzqpDiNO4BPnNrPw",
+    authDomain: "my-notebook-845c1.firebaseapp.com",
+    projectId: "my-notebook-845c1",
+    storageBucket: "my-notebook-845c1.firebasestorage.app",
+    messagingSenderId: "274169392175",
+    appId: "1:274169392175:web:2eac8f901099041fdeeada",
+    measurementId: "G-S9J2M5YH09"
+  };
+  /* ══════════════════════════════════════════════════ */
+
+  /* ── Detect placeholder config ── */
+  const IS_PLACEHOLDER = firebaseConfig.apiKey === "YOUR_API_KEY";
+  if (IS_PLACEHOLDER) {
+    document.getElementById('setupBanner').classList.add('show');
+    document.getElementById('authScreen').classList.add('show');
+    document.getElementById('googleSignInBtn').disabled = true;
+    document.getElementById('googleSignInBtn').textContent = 'Configure Firebase first';
+    // Stop here — don't init Firebase with invalid config
+    throw new Error('Firebase not configured — see setup banner.');
+  }
+
+  /* ── Init Firebase ── */
+  firebase.initializeApp(firebaseConfig);
+  const auth = firebase.auth();
+  const db   = firebase.firestore();
+
+  /* ─────────────────────────────────── */
+  /* Utility helpers                     */
+  /* ─────────────────────────────────── */
+  const $ = (sel, ctx = document) => ctx.querySelector(sel);
+  const $$ = (sel, ctx = document) => [...ctx.querySelectorAll(sel)];
+
+  function todayISO() { return new Date().toISOString().slice(0, 10); }
+  function formatDate(iso) {
+    if (!iso) return '';
+    const d = new Date(iso + 'T00:00:00');
+    return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  }
+  function escHtml(s) {
+    return String(s)
+      .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+      .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  /* ── Toast ── */
+  let toastTimer;
+  function showToast(msg, type = 'ok') {
+    const el = $('#toast');
+    const icon = type === 'ok' ? 'check-circle' : type === 'error' ? 'circle-exclamation' : 'copy';
+    el.innerHTML = `<i class="fa fa-${icon}"></i> ${msg}`;
+    el.className = `toast ${type} show`;
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => el.classList.remove('show'), 2400);
+  }
+
+  /* ── Sync dot ── */
+  function syncState(state) {         // 'ok' | 'syncing' | 'error'
+    const dot = $('#syncDot'), lbl = $('#syncLabel');
+    dot.className = `sync-dot ${state === 'ok' ? '' : state}`;
+    lbl.textContent = state === 'ok' ? 'Synced' : state === 'syncing' ? 'Syncing…' : 'Offline';
+  }
+
+  /* ─────────────────────────────────── */
+  /* Card rendering                      */
+  /* ─────────────────────────────────── */
+  const CATEGORY_META = {
+    coding:   { label: '💻 Coding',   cls: 'badge-coding'   },
+    general:  { label: '📌 General',  cls: 'badge-general'  },
+    research: { label: '🔬 Research', cls: 'badge-research' },
+    other:    { label: '🗂 Other',    cls: 'badge-other'    },
+  };
+
+  let allCards      = [];   // live cache from Firestore
+  let activeFilter  = 'all';
+  let searchQuery   = '';
+
+  function renderCards() {
+    const filtered = allCards.filter(c => {
+      const matchCat    = activeFilter === 'all' || c.category === activeFilter;
+      const q           = searchQuery.toLowerCase();
+      const matchSearch = !q ||
+        (c.title    || '').toLowerCase().includes(q) ||
+        (c.note     || '').toLowerCase().includes(q) ||
+        (c.category || '').toLowerCase().includes(q);
+      return matchCat && matchSearch;
+    });
+
+    $('#cardCount').textContent = `${filtered.length} card${filtered.length !== 1 ? 's' : ''}`;
+
+    if (filtered.length === 0) {
+      $('#cardsGrid').innerHTML = `
+        <div class="empty-state">
+          <i class="fa fa-book-open"></i>
+          <p>${allCards.length === 0 ? 'No cards yet — add your first note!' : 'No cards match your filter.'}</p>
+        </div>`;
+      return;
+    }
+
+    $('#cardsGrid').innerHTML = filtered.map(buildCardHTML).join('');
+
+    $$('.copy-btn').forEach(b   => b.addEventListener('click', () => copyCard(b.dataset.id)));
+    $$('.edit-btn').forEach(b   => b.addEventListener('click', () => openEditModal(b.dataset.id)));
+    $$('.delete-btn').forEach(b => b.addEventListener('click', () => deleteCard(b.dataset.id)));
+  }
+
+  function buildCardHTML(c) {
+    const holeCount = 5 + (c.id.charCodeAt(0) % 4);
+    const holes     = '<div class="hole"></div>'.repeat(holeCount);
+    const meta      = CATEGORY_META[c.category] || CATEGORY_META.other;
+    return `
+    <article class="card" data-id="${c.id}">
+      <div class="card-holes">${holes}</div>
+      <div class="card-content">
+        <div class="card-header">
+          <span class="card-date">${escHtml(formatDate(c.date))}</span>
+          <span class="category-badge ${meta.cls}">${meta.label}</span>
+        </div>
+        <div class="card-title">${escHtml(c.title || 'Untitled')}</div>
+        <div class="card-body">${escHtml(c.note || '')}</div>
+      </div>
+      <div class="card-footer">
+        <button class="btn-icon edit-btn"   data-id="${c.id}" title="Edit"   aria-label="Edit card"><i class="fa fa-pencil"></i></button>
+        <button class="btn-icon copy-btn"   data-id="${c.id}" title="Copy"   aria-label="Copy card"><i class="fa fa-copy"></i></button>
+        <button class="btn-icon delete-btn" data-id="${c.id}" title="Delete" aria-label="Delete card"><i class="fa fa-trash"></i></button>
+      </div>
+    </article>`;
+  }
+
+  /* ─────────────────────────────────── */
+  /* Firestore helpers (per-user path)   */
+  /* ─────────────────────────────────── */
+  let currentUser = null;
+  let unsubSnapshot = null;
+
+  function cardsRef() {
+    return db.collection('users').doc(currentUser.uid).collection('cards');
+  }
+
+  /* Subscribe to real-time updates */
+  function subscribeCards() {
+    if (unsubSnapshot) unsubSnapshot();   // detach any old listener
+    syncState('syncing');
+    unsubSnapshot = cardsRef()
+      .orderBy('createdAt', 'desc')
+      .onSnapshot(snapshot => {
+        allCards = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        renderCards();
+        syncState('ok');
+      }, err => {
+        console.error('Firestore snapshot error', err);
+        syncState('error');
+        showToast('Sync error — check console', 'error');
+      });
+  }
+
+  async function fsAddCard(data) {
+    syncState('syncing');
+    await cardsRef().add({ ...data, createdAt: firebase.firestore.FieldValue.serverTimestamp() });
+    syncState('ok');
+  }
+
+  async function fsUpdateCard(id, data) {
+    syncState('syncing');
+    await cardsRef().doc(id).update(data);
+    syncState('ok');
+  }
+
+  async function fsDeleteCard(id) {
+    syncState('syncing');
+    await cardsRef().doc(id).delete();
+    syncState('ok');
+  }
+
+  /* ─────────────────────────────────── */
+  /* Card actions                        */
+  /* ─────────────────────────────────── */
+  function copyCard(id) {
+    const card = allCards.find(c => c.id === id);
+    if (!card) return;
+    const text = [card.title, card.category, card.date, card.note].filter(Boolean).join('\n');
+    navigator.clipboard.writeText(text).then(() => {
+      const btn = $(`.copy-btn[data-id="${id}"]`);
+      if (btn) btn.classList.add('copied');
+      setTimeout(() => btn?.classList.remove('copied'), 1800);
+      showToast('Copied to clipboard!', 'copy');
+    }).catch(() => showToast('Copy failed', 'error'));
+  }
+
+  async function deleteCard(id) {
+    try {
+      await fsDeleteCard(id);
+      showToast('Card deleted');
+    } catch(e) {
+      console.error(e);
+      showToast('Delete failed', 'error');
+    }
+  }
+
+  /* ─────────────────────────────────── */
+  /* Modal (Add / Edit)                  */
+  /* ─────────────────────────────────── */
+  let editingId = null;
+
+  function openAddModal() {
+    editingId = null;
+    $('#modalTitle').textContent  = '✏️ New Flashcard';
+    $('#inputTitle').value    = '';
+    $('#inputCategory').value = 'general';
+    $('#inputNote').value     = '';
+    $('#inputDate').value     = todayISO();
+    $('#modalOverlay').classList.add('open');
+    setTimeout(() => $('#inputTitle').focus(), 120);
+  }
+
+  function openEditModal(id) {
+    const card = allCards.find(c => c.id === id);
+    if (!card) return;
+    editingId = id;
+    $('#modalTitle').textContent  = '✏️ Edit Flashcard';
+    $('#inputTitle').value    = card.title    || '';
+    $('#inputCategory').value = card.category || 'general';
+    $('#inputNote').value     = card.note     || '';
+    $('#inputDate').value     = card.date     || todayISO();
+    $('#modalOverlay').classList.add('open');
+    setTimeout(() => $('#inputTitle').focus(), 120);
+  }
+
+  function closeModal() {
+    $('#modalOverlay').classList.remove('open');
+    editingId = null;
+  }
+
+  async function saveCard() {
+    const title    = $('#inputTitle').value.trim();
+    const note     = $('#inputNote').value.trim();
+    const category = $('#inputCategory').value;
+    const date     = $('#inputDate').value;
+
+    if (!title && !note) { showToast('Please enter a title or note', 'error'); return; }
+
+    const saveBtn = $('#saveBtn');
+    saveBtn.disabled = true;
+    saveBtn.textContent = 'Saving…';
+
+    try {
+      if (editingId) {
+        await fsUpdateCard(editingId, { title, note, category, date });
+        showToast('Card updated! 📝');
+      } else {
+        await fsAddCard({ title, note, category, date });
+        showToast('Card saved! 🎉');
+      }
+      closeModal();
+    } catch(e) {
+      console.error(e);
+      showToast('Save failed — check console', 'error');
+    } finally {
+      saveBtn.disabled = false;
+      saveBtn.textContent = 'Save Card';
+    }
+  }
+
+  /* ─────────────────────────────────── */
+  /* Auth                                */
+  /* ─────────────────────────────────── */
+  function showApp(user) {
+    currentUser = user;
+    $('#authScreen').classList.remove('show');
+    $('#appShell').classList.add('show');
+
+    // Update user chip
+    $('#userAvatar').src   = user.photoURL  || '';
+    $('#userName').textContent = user.displayName || user.email || 'User';
+
+    subscribeCards();
+  }
+
+  function showSignIn() {
+    if (unsubSnapshot) { unsubSnapshot(); unsubSnapshot = null; }
+    currentUser = null;
+    allCards    = [];
+    $('#appShell').classList.remove('show');
+    $('#authScreen').classList.add('show');
+  }
+
+  auth.onAuthStateChanged(user => {
+    if (user) showApp(user);
+    else      showSignIn();
+  });
+
+  $('#googleSignInBtn').addEventListener('click', () => {
+    const provider = new firebase.auth.GoogleAuthProvider();
+    auth.signInWithPopup(provider).catch(err => {
+      console.error(err);
+      showToast('Sign-in failed: ' + err.message, 'error');
+    });
+  });
+
+  $('#signOutBtn').addEventListener('click', () => {
+    auth.signOut().then(() => showToast('Signed out'));
+  });
+
+  /* ─────────────────────────────────── */
+  /* Filter, search, modal wiring        */
+  /* ─────────────────────────────────── */
+  $('#openModalBtn').addEventListener('click', openAddModal);
+  $('#closeModalBtn').addEventListener('click', closeModal);
+  $('#cancelBtn').addEventListener('click', closeModal);
+  $('#saveBtn').addEventListener('click', saveCard);
+
+  $('#modalOverlay').addEventListener('click', e => { if (e.target === $('#modalOverlay')) closeModal(); });
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') closeModal();
+    if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') saveCard();
+  });
+
+  $$('.filter-pill').forEach(btn => {
+    btn.addEventListener('click', () => {
+      $$('.filter-pill').forEach(p => p.classList.remove('active'));
+      btn.classList.add('active');
+      activeFilter = btn.dataset.filter;
+      renderCards();
+    });
+  });
+
+  $('#searchInput').addEventListener('input', e => {
+    searchQuery = e.target.value;
+    renderCards();
+  });
+</script>
+</body>
+</html>
