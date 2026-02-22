@@ -7,7 +7,7 @@
   <meta name="description" content="A personal flashcard notebook synced to Firebase Firestore." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&family=Caveat:wght@400;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
 
   <!-- Firebase v9 SDK (compat shims — no build step required) -->
@@ -317,7 +317,7 @@
       color: var(--pencil); line-height: 1.35; margin-bottom: 8px; word-break: break-word;
     }
     .card-body {
-      font-family: 'Comic Sans MS', 'Comic Sans', cursive; font-size: 1.03rem; color: var(--pencil-light);
+      font-family: 'Comic Neue', 'Comic Sans MS', 'Comic Sans', cursive; font-size: 1.03rem; color: var(--pencil-light);
       line-height: 1.75; word-break: break-word; white-space: pre-wrap;
     }
 
@@ -434,6 +434,49 @@
     .toast.show  { transform: translateY(0); opacity: 1; }
     .toast.ok    { background: #16a34a; }
     .toast.error { background: #dc2626; }
+
+    /* ── Delete confirm dialog ── */
+    .confirm-overlay {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.45); backdrop-filter: blur(4px);
+      z-index: 150; display: flex; align-items: center; justify-content: center;
+      opacity: 0; pointer-events: none; transition: opacity 0.2s ease;
+    }
+    .confirm-overlay.open { opacity: 1; pointer-events: all; }
+    .confirm-box {
+      background: var(--paper);
+      border-radius: 10px;
+      padding: 28px 32px;
+      max-width: 340px; width: 90%;
+      text-align: center;
+      box-shadow: 0 16px 48px rgba(0,0,0,0.3);
+      transform: scale(0.92); transition: transform 0.2s ease;
+    }
+    .confirm-overlay.open .confirm-box { transform: scale(1); }
+    .confirm-box p {
+      font-family: var(--font-hand); font-size: 1.3rem;
+      color: var(--pencil); margin-bottom: 22px; line-height: 1.4;
+    }
+    .confirm-actions { display: flex; gap: 10px; justify-content: center; }
+    .btn-confirm-yes {
+      padding: 9px 26px; border-radius: 24px; border: none; cursor: pointer;
+      background: #dc2626; color: #fff;
+      font-family: var(--font-ui); font-size: 0.88rem; font-weight: 600;
+      transition: all 0.18s;
+    }
+    .btn-confirm-yes:hover { background: #b91c1c; transform: translateY(-1px); }
+    .btn-confirm-no {
+      padding: 9px 26px; border-radius: 24px;
+      border: 1.5px solid rgba(0,0,0,0.15); background: transparent; cursor: pointer;
+      font-family: var(--font-ui); font-size: 0.88rem; font-weight: 500;
+      color: var(--pencil-light); transition: all 0.18s;
+    }
+    .btn-confirm-no:hover { background: rgba(0,0,0,0.06); }
+    /* dark mode overrides */
+    body.dark .confirm-box { background: #111e11; }
+    body.dark .confirm-box p { color: #e8e4dc; }
+    body.dark .btn-confirm-no { color: #7a7670; border-color: rgba(255,255,255,0.12); }
+    body.dark .btn-confirm-no:hover { background: rgba(255,255,255,0.06); }
 
     /* ── Responsive ── */
     @media (max-width: 600px) {
@@ -643,6 +686,17 @@
   </div>
 </div>
 
+<!-- ─── DELETE CONFIRM DIALOG ──────────────────────── -->
+<div class="confirm-overlay" id="confirmOverlay" role="dialog" aria-modal="true">
+  <div class="confirm-box">
+    <p>🗑️ Are you sure you want to delete this card?</p>
+    <div class="confirm-actions">
+      <button class="btn-confirm-yes" id="confirmYes">Yes, delete</button>
+      <button class="btn-confirm-no"  id="confirmNo">No, keep it</button>
+    </div>
+  </div>
+</div>
+
 <!-- ─── TOAST ──────────────────────────────────────── -->
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
@@ -843,7 +897,29 @@
     }).catch(() => showToast('Copy failed', 'error'));
   }
 
+  /* ─────────────────────────────────── */
+  /* Confirm dialog                      */
+  /* ─────────────────────────────────── */
+  function showConfirm() {
+    return new Promise(resolve => {
+      const overlay = $('#confirmOverlay');
+      overlay.classList.add('open');
+      function cleanup(result) {
+        overlay.classList.remove('open');
+        $('#confirmYes').removeEventListener('click', onYes);
+        $('#confirmNo').removeEventListener('click', onNo);
+        resolve(result);
+      }
+      const onYes = () => cleanup(true);
+      const onNo  = () => cleanup(false);
+      $('#confirmYes').addEventListener('click', onYes);
+      $('#confirmNo').addEventListener('click', onNo);
+    });
+  }
+
   async function deleteCard(id) {
+    const confirmed = await showConfirm();
+    if (!confirmed) return;
     try {
       await fsDeleteCard(id);
       showToast('Card deleted');
