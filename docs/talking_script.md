@@ -320,8 +320,19 @@ const firebaseConfig = {
 
 *(Help anyone who is stuck)*
 
----
----
+> "Now — before we move on, I want to address something. You may have noticed that this config block has something called an **API key** in it. And you might be thinking: we are going to put this on a public GitHub page. Is that safe?"
+
+> "The answer is yes — and here is why."
+
+> "A Firebase API key is not like a bank PIN. It does not give anyone access to your data. It simply tells Firebase: 'Hey, I am connecting to *this* project.' Like a public office address — anyone can know it, but that does not mean they can walk into your files."
+
+> "The actual protection is those security rules we set up a few minutes ago. Those rules say: only a signed-in user can see their own cards. Even if someone copied your API key and tried to read your notes, Firebase would block them completely."
+
+> "So do not worry about it. This is by design. Every Firebase web app in the world works this way."
+
+> "If you want extra peace of mind after today, there is one optional step: you can go into Google Cloud Console and restrict the API key so it only works from your GitHub Pages URL. Your tutorial document has the exact steps. But it is not required for the app to work safely."
+
+*(Pause — check if anyone has questions before moving on)*
 
 ## PHASE 4 — Connect Firebase and Deploy (30 minutes)
 

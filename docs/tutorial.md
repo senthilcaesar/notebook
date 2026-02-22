@@ -264,7 +264,23 @@ const firebaseConfig = {
 8. **Copy this entire block** — you'll need it in the next phase
 9. Click **"Continue to console"**
 
-> **Keep this config safe like a password.** While it's not a secret per se (it's in your HTML file), you shouldn't post it publicly in chat messages.
+> **A note on the API key:** This config will be visible in your public GitHub file. That is completely normal and safe for Firebase — see the box below.
+
+> [!NOTE]
+> **🔐 Is my API key safe to put on GitHub?**
+>
+> Yes — and here is why. A Firebase web API key is not like a bank password. It simply tells Firebase *which project* you are connecting to, like a public address. **The actual security comes from the rules we set in Step 3.4** — those rules mean nobody can read or write your cards unless they are signed in with *their own* Google account.
+>
+> Even if someone copies your API key, they cannot see your notes. Firebase will block them.
+>
+> **Optional extra step — restrict the key to your domain only:**
+> 1. Go to [console.cloud.google.com](https://console.cloud.google.com) → select your project
+> 2. **APIs & Services → Credentials** → click your Browser API key
+> 3. Under **Application restrictions** → choose **HTTP referrers**
+> 4. Add `https://YOUR-USERNAME.github.io/*` and `http://localhost:*`
+> 5. Click **Save**
+>
+> Now the key only works from your URL. Anyone who copies it cannot use it anywhere else.
 
 ---
 
