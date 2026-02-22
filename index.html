@@ -443,6 +443,90 @@
       .modal { padding: 22px 16px; }
       .form-row { flex-direction: column; gap: 0; }
     }
+
+    /* ─────────────────────────────────────────────────
+       DARK MODE
+    ───────────────────────────────────────────────── */
+    body.dark {
+      background: #0a180a;
+      background-image:
+        radial-gradient(ellipse at 20% 50%, #0e2210 0%, transparent 60%),
+        radial-gradient(ellipse at 80% 20%, #091509 0%, transparent 50%);
+    }
+
+    /* Dark cards */
+    body.dark .card {
+      background: #111e11;
+      box-shadow: 3px 3px 12px rgba(0,0,0,0.5), 0 8px 32px rgba(0,0,0,0.4);
+    }
+    body.dark .card-content {
+      background-image: repeating-linear-gradient(
+        to bottom, transparent 0px, transparent 27px,
+        rgba(255,255,255,0.06) 27px, rgba(255,255,255,0.06) 28px
+      );
+    }
+    body.dark .card::before { background: #e06060; opacity: 0.5; }
+    body.dark .card-title   { color: #e8e4dc; }
+    body.dark .card-body    { color: #a8a49c; }
+    body.dark .card-date    { color: #6b6760; }
+    body.dark .hole         { background: rgba(0,0,0,0.6); border-color: rgba(255,255,255,0.08); }
+    body.dark .card-footer  { border-top-color: rgba(255,255,255,0.06); background: rgba(0,0,0,0.25); }
+    body.dark .btn-icon     { background: rgba(255,255,255,0.07); border-color: rgba(255,255,255,0.12); color: rgba(255,255,255,0.45); }
+    body.dark .btn-icon:hover { background: rgba(255,255,255,0.15); color: #fff; }
+
+    /* Dark modal */
+    body.dark .modal {
+      background: #111e11;
+      background-image: repeating-linear-gradient(
+        to bottom, transparent 0px, transparent 27px,
+        rgba(255,255,255,0.05) 27px, rgba(255,255,255,0.05) 28px
+      );
+      background-size: 100% 28px;
+      background-position: 0 58px;
+    }
+    body.dark .modal h2                     { color: #e8e4dc; }
+    body.dark .form-group label             { color: #7a7670; }
+    body.dark .form-group input,
+    body.dark .form-group textarea,
+    body.dark .form-group select            { color: #e8e4dc; border-bottom-color: rgba(255,255,255,0.15); }
+    body.dark .form-group input:focus,
+    body.dark .form-group textarea:focus,
+    body.dark .form-group select:focus      { border-bottom-color: #6aaf7a; }
+    body.dark .btn-cancel                   { color: #7a7670; border-color: rgba(255,255,255,0.1); }
+    body.dark .btn-cancel:hover             { background: rgba(255,255,255,0.06); }
+
+    /* Dark sign-in card */
+    body.dark .signin-card {
+      background: #111e11;
+      background-image: repeating-linear-gradient(
+        to bottom, transparent 0px, transparent 27px,
+        rgba(255,255,255,0.05) 27px, rgba(255,255,255,0.05) 28px
+      );
+      background-size: 100% 28px;
+      background-position: 0 60px;
+    }
+    body.dark .signin-card h2 { color: #e8e4dc; }
+    body.dark .signin-card p  { color: #7a7670; }
+
+    /* Dark search bar */
+    body.dark .search-input           { background: rgba(255,255,255,0.08); color: #e8e4dc; }
+    body.dark .search-input:focus     { background: rgba(255,255,255,0.12); }
+
+    /* Dark mode toggle button */
+    .btn-dark-toggle {
+      background: none;
+      border: 1px solid rgba(255,255,255,0.25);
+      border-radius: 20px;
+      padding: 4px 10px;
+      cursor: pointer;
+      font-size: 1.1rem;
+      line-height: 1;
+      transition: all 0.2s ease;
+    }
+    .btn-dark-toggle:hover {
+      background: rgba(255,255,255,0.1);
+      transform: scale(1.1);
+    }
   </style>
 </head>
 <body>
@@ -505,6 +589,7 @@
         <span class="user-name" id="userName"></span>
       </div>
       <button class="btn-signout" id="signOutBtn">Sign out</button>
+      <button class="btn-dark-toggle" id="darkToggle" title="Toggle dark mode" aria-label="Toggle dark mode">☀️</button>
     </div>
   </header>
 
@@ -898,6 +983,23 @@
   $('#searchInput').addEventListener('input', e => {
     searchQuery = e.target.value;
     renderCards();
+  });
+  /* ─────────────────────────────────── */
+  /* Dark mode toggle                    */
+  /* ─────────────────────────────────── */
+  const darkToggle = $('#darkToggle');
+
+  function applyTheme(isDark) {
+    document.body.classList.toggle('dark', isDark);
+    darkToggle.textContent = isDark ? '🌙' : '☀️';
+    localStorage.setItem('nb_dark_mode', isDark ? '1' : '0');
+  }
+
+  // Restore saved preference on load
+  applyTheme(localStorage.getItem('nb_dark_mode') === '1');
+
+  darkToggle.addEventListener('click', () => {
+    applyTheme(!document.body.classList.contains('dark'));
   });
 </script>
 </body>
