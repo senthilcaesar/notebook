@@ -749,7 +749,7 @@
   function copyCard(id) {
     const card = allCards.find(c => c.id === id);
     if (!card) return;
-    const text = [card.title, card.category, card.date, card.note].filter(Boolean).join('\n');
+    const text = card.note || '';
     navigator.clipboard.writeText(text).then(() => {
       const btn = $(`.copy-btn[data-id="${id}"]`);
       if (btn) btn.classList.add('copied');
