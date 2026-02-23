@@ -40,6 +40,7 @@
       --accent-desk: #4a7c59;
       --shadow: rgba(60, 45, 20, 0.14);
       --tag-coding: #3b82f6;
+      --tag-prompt: #5C4033;
       --tag-general: #6366f1;
       --tag-research: #ec4899;
       --tag-other: #f97316;
@@ -479,6 +480,10 @@
 
     .badge-coding {
       background: var(--tag-coding);
+    }
+
+    .badge-prompt {
+      background: var(--tag-prompt);
     }
 
     .badge-general {
@@ -1284,6 +1289,7 @@
     /* ─────────────────────────────────── */
     const CATEGORY_META = {
       coding: { label: '💻 Coding', cls: 'badge-coding' },
+      prompt: { label: '⚙️ Prompt', cls: 'badge-prompt' },
       general: { label: '📌 General', cls: 'badge-general' },
       research: { label: '🔬 Research', cls: 'badge-research' },
       other: { label: '🗂 Other', cls: 'badge-other' },
