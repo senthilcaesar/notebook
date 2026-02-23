@@ -673,7 +673,7 @@
       font-family: 'Comic Neue', 'Comic Sans MS', 'Comic Sans', cursive;
       font-size: 0.95rem;
       line-height: 28px;
-      min-height: 112px;
+      min-height: 224px;
       padding-top: 0;
       background-image: repeating-linear-gradient(to bottom,
           transparent 0px, transparent 27px,
@@ -681,6 +681,8 @@
       background-size: 100% 28px;
       background-position: 0 0;
       background-attachment: local;
+      overflow: hidden;
+      resize: none;
     }
 
     .form-group select {
@@ -1166,6 +1168,7 @@
         <div class="form-group">
           <label for="inputCategory">Category</label>
           <select id="inputCategory">
+            <option value="prompt">⚙️ Prompt</option>
             <option value="coding">💻 Coding</option>
             <option value="general" selected>📌 General</option>
             <option value="research">🔬 Research</option>
@@ -1439,6 +1442,14 @@
     /* ─────────────────────────────────── */
     let editingId = null;
 
+    /* Auto-resize textarea to fit content */
+    function autoResizeNote() {
+      const el = $('#inputNote');
+      el.style.height = 'auto';
+      el.style.height = Math.max(224, el.scrollHeight) + 'px';
+    }
+    $('#inputNote').addEventListener('input', autoResizeNote);
+
     function openAddModal() {
       editingId = null;
       $('#modalTitle').textContent = '✏️ New Flashcard';
@@ -1447,7 +1458,7 @@
       $('#inputNote').value = '';
       $('#inputDate').value = todayISO();
       $('#modalOverlay').classList.add('open');
-      setTimeout(() => $('#inputTitle').focus(), 120);
+      setTimeout(() => { $('#inputTitle').focus(); autoResizeNote(); }, 120);
     }
 
     function openEditModal(id) {
@@ -1460,7 +1471,7 @@
       $('#inputNote').value = card.note || '';
       $('#inputDate').value = card.date || todayISO();
       $('#modalOverlay').classList.add('open');
-      setTimeout(() => $('#inputTitle').focus(), 120);
+      setTimeout(() => { $('#inputTitle').focus(); autoResizeNote(); }, 120);
     }
 
     function closeModal() {
