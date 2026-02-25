@@ -54,7 +54,7 @@ Make sure you have the following **before the session begins**:
   → Verify: Open Terminal, type `git --version`, press Enter. You should see a version number.
 - [ ] **A Google account** (your personal Gmail)
 - [ ] **Google Chrome** browser open and ready
-- [ ] **Antigravity** — accessible in your browser
+- [ ] **Antigravity** — downloaded and installed on your Mac (see Step 2.0 below for instructions)
 
 ---
 
@@ -119,9 +119,26 @@ git config --global user.email "youremail@gmail.com"
 
 This is the magic moment. One prompt. One click. A fully working web app.
 
+## Step 2.0 — Download and Install Antigravity
+
+Before using Antigravity, you need to download and install it on your Mac. This is a one-time setup.
+
+1. Open Chrome and navigate to the **Antigravity download page**
+2. Click the **Download** button to download the installer
+3. Open your **Downloads folder** and double-click the Antigravity installer
+4. Follow the on-screen prompts:
+   - Click **Continue** → **Install**
+   - Enter your Mac password if prompted
+   - Click **Install Software**
+5. When you see **"Installation was successful"**, click **Close**
+
+Antigravity is now installed on your Mac. You can launch it from your **Applications folder** or via **Spotlight** (⌘ Command + Space → type `Antigravity` → press Enter).
+
+> **Note:** If you already have Antigravity installed, skip this step.
+
 ## Step 2.1 — Open Antigravity
 
-Open Antigravity in Chrome and start a new conversation.
+Launch Antigravity from your Applications folder (or Spotlight) and start a new conversation.
 
 ## Step 2.2 — Enter the Prompt
 
@@ -131,7 +148,7 @@ Copy and paste the following prompt **exactly as written** into Antigravity and 
 
 > **📋 The Prompt (copy this exactly):**
 >
-> *"I would like to build a web app, a simple HTML static page. The purpose of the page is to store my notes as a flashcard. Each note should have its separate flashcard. Flashcard UI should look like how a student would takes notes using a pencil in a ruled notebook. Please use latest best available UI framework if enhancements are needed. Each notes flashcard should have a date field, category field, a copy button field. In addition I should be able to filter the flashcard by category. Example categories include "coding", "general", "research". After implementing it, write CLAUDE.md file"*
+> *"Build me a personal notes web app as a single HTML file. I want to save my notes as flashcards that look like handwritten notebook pages — styled to resemble a student's ruled paper with a pencil feel. Each flashcard should have: a title, a date, a category tag, a note body, a copy button, and a delete button. I should be able to filter my cards by category. Default categories are: Coding, General, and Research. For now, save notes in the browser's local storage. After building the app, also create a CLAUDE.md file that explains what was built."*
 
 ---
 
@@ -290,16 +307,15 @@ const firebaseConfig = {
 
 Now we'll upgrade the app to use Firebase and push it live to GitHub Pages.
 
-## Step 4.1 — Ask Antigravity to Add Firebase
+## Step 4.1 — Send the Second Prompt to Add Firebase
 
-Go back to Antigravity and send this follow-up message in the **same conversation**:
+Now that you've tested the app locally, it's time to upgrade it with cloud storage. Go back to Antigravity and send this **second prompt** in the **same conversation**:
 
 ---
 
-> **📋 Follow-up Prompt:**
+> **📋 Second Prompt (copy this exactly):**
 >
-> *"Yes, please go ahead with Option 1"*  
-> *(Antigravity will have already suggested Firebase as the cloud storage option)*
+> *"Great — the app looks good. Now please upgrade it to use Firebase for cloud storage and Google Sign-In for login. Each user's notes should be private and automatically synced across all their devices. Keep the same design and features — just add the Firebase and Google Sign-In functionality on top."*
 
 ---
 
@@ -308,7 +324,7 @@ Antigravity will rewrite `flashcards.html` to include:
 - Google Sign-In button
 - Firestore database reads and writes
 - A real-time sync indicator
-- A friendly setup banner (while you haven't added your config yet)
+- A friendly setup banner (until you paste in your Firebase config)
 
 ## Step 4.2 — Paste Your Firebase Config
 

@@ -14,6 +14,12 @@
 
 > "The app is a digital notebook. You can store notes as flashcards. You can organise them by category. You can search them. And you can open the app on your phone, your laptop, any device — because the notes are saved in the cloud."
 
+> "Let me show you a quick preview of the app I built using this process."
+
+*(Show the app preview on screen)*
+
+> "Now — **your app may not look exactly like this.** The AI can produce different designs depending on the exact words in your prompt and the model you choose. That is completely fine — and actually one of the interesting things about working with AI. The core features will be there: the flashcards, the categories, the search, the cloud sync. The visual style may vary."
+
 > "Here is the most important thing I want you to hear: **you will not write a single line of code yourself.** We will use an AI assistant called Antigravity to write all the code for us. Our job is to give the AI the right instructions."
 
 > "Also — everything we use today is **completely free.** No credit card. No subscription. Google gives us one gigabyte of free cloud storage with Firebase — that is enough to store tens of thousands of notes."
@@ -112,9 +118,31 @@
 
 ---
 
+### Step 2.0 — Download and Install Antigravity
+
+> "Before we open Antigravity, we need to download and install it on your computer. This is a one-time setup."
+
+> "Open Chrome and go to the **Antigravity download page**. You will see a big download button — click it."
+
+> "Once the download finishes, open your **Downloads folder** and double-click the Antigravity installer."
+
+> "Follow the on-screen instructions: click **Continue**, then **Install**, then enter your Mac password if asked. Click **Install Software**."
+
+> "When the installer says 'Installation was successful', click **Close**."
+
+> "Antigravity is now installed on your Mac. You can find it in your **Applications folder** — or just use Spotlight: press **Command + Space**, type **Antigravity**, press Enter."
+
+*(Wait for everyone to finish installing)*
+
+> "Raise your hand if you see an error during installation."
+
+*(Help anyone with issues)*
+
+---
+
 ### Step 2.1 — Open Antigravity
 
-> "Now the fun part. Open a new tab in Chrome and go to **Antigravity**."
+> "Now the fun part. Open Antigravity from your Applications folder — or from Spotlight."
 
 > "Start a new conversation. You will see a text box where you can type a message — just like WhatsApp or email."
 
@@ -133,7 +161,7 @@
 ---
 
 **[DISPLAY ON SCREEN:]**
-> *"I would like to build a web app, a simple HTML static page. The purpose of the page is to store my notes as a flashcard. Each note should have its separate flashcard. Flashcard UI should look like how a student would takes notes using a pencil in a ruled notebook. Please use latest best available UI framework if enhancements are needed. Each notes flashcard should have a date field, category field, a copy button field. In addition I should be able to filter the flashcard by category. Example categories include "coding", "general", "research". After implementing it, write CLAUDE.md file"*
+> *"Build me a personal notes web app as a single HTML file. I want to save my notes as flashcards that look like handwritten notebook pages — styled to resemble a student's ruled paper with a pencil feel. Each flashcard should have: a title, a date, a category tag, a note body, a copy button, and a delete button. I should be able to filter my cards by category. Default categories are: Coding, General, and Research. For now, save notes in the browser's local storage. After building the app, also create a CLAUDE.md file that explains what was built."*
 
 ---
 
@@ -338,20 +366,20 @@ const firebaseConfig = {
 
 ---
 
-### Step 4.1 — Ask Antigravity to Add Firebase
+### Step 4.1 — Send the Second Prompt to Add Firebase
 
-> "Go back to Antigravity. We need to have a short second conversation with the AI."
+> "Now that we have tested the app locally and seen it working, we are going to upgrade it. We will add cloud storage using Firebase — so your notes are saved on the internet, not just on your laptop."
 
-> "The AI will ask us which cloud storage option we want. Type this reply:"
+> "Go back to Antigravity. We will send a **second prompt** in the **same conversation**. This tells the AI to upgrade the app it already built."
+
+> "Here is the second prompt. Copy and paste it:"
 
 **[DISPLAY ON SCREEN:]**
-> *"Yes, please go ahead with Option 1"*
+> *"Great — the app looks good. Now please upgrade it to use Firebase for cloud storage and Google Sign-In for login. Each user's notes should be private and automatically synced across all their devices. Keep the same design and features — just add the Firebase and Google Sign-In functionality on top."*
 
 > "Send it."
 
-> "The AI will now rewrite your app to include Firebase. It will add the sign-in button, the cloud database connection, and a real-time sync indicator."
-
-> "This again takes about 30 to 60 seconds. Wait for it to finish."
+> "The AI will now rewrite your app to include Firebase. This takes about 30 to 60 seconds. Wait for it to finish."
 
 ---
 
