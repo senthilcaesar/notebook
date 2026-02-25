@@ -10,7 +10,7 @@
 
 > "Welcome everyone. Thank you for joining today's session."
 
-> "Today, we are going to build a real web app together — a **personal notebook app**. You will publish it on the internet. At the end, you will have **your own website** — something like *your-name.github.io/flashcards* — that is live on the internet."
+> "Today, we are going to build a real web app together — a **personal notebook app**. You will publish it on the internet. At the end, you will have **your own website** — something like *your-name.github.io/flashcards* — that is live on the internet. It will be your personal space for storing and accessing your notes from any device, anytime."
 
 > "And here is the exciting part — **we are going to use AI to create this app.** You will not write a single line of code yourself. You will simply describe what you want in plain English, and the AI will build it for you."
 
