@@ -14,17 +14,15 @@
 
 > "And here is the exciting part — **we are going to use AI to create this app.** You will not write a single line of code yourself. You will simply describe what you want in plain English, and the AI will build it for you."
 
-> "To build and launch this app, we will use four tools. All of them are **free**. Let me quickly walk you through what each one does."
+> "To build and launch this app, we will use three tools. All of them are **free**. Let me quickly walk you through what each one does."
 
 > "**Antigravity** — this is the AI coding assistant. We type our instructions in plain English, and it writes all the code for us."
 
 > "**Firebase** — this is Google's cloud service. It stores your notes securely in the cloud and handles the login with your Google account."
 
-> "**GitHub** — this is where we will store and host the code. Think of it like Google Drive, but for code files."
+> "**GitHub & GitHub Pages** — this is where we store the code and publish it as a live website. Think of it like Google Drive for code — except it also gives you a real URL on the internet."
 
-> "**GitHub Pages** — this is what turns your code into a live website with a real URL on the internet."
-
-> "That is it. Four tools. Let's see what we are building."
+> "That is it. Three tools. Let's see what we are building."
 
 > "Let me show you a quick preview of the app I built using this process."
 
