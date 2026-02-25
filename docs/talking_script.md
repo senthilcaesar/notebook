@@ -10,15 +10,15 @@
 
 > "Welcome everyone. Thank you for joining today's session."
 
-> "Today, we are going to build a real web app together. You will publish it on the internet. At the end of today, you will have your own personal URL — something like *your-name.github.io/flashcards* — that you can share with anyone."
+> "Today, we are going to build a real web app together. You will publish it on the internet. At the end, you will have **your own website** — something like *your-name.github.io/flashcards* — that is live on the internet."
 
 > "And here is the exciting part — **we are going to use AI to create this app.** You will not write a single line of code yourself. You will simply describe what you want in plain English, and the AI will build it for you."
-
-> "The app is a digital notebook. You can store notes as flashcards. You can organise them by category. You can search them. And you can open the app on your phone, your laptop, any device — because the notes are saved in the cloud."
 
 > "Let me show you a quick preview of the app I built using this process."
 
 *(Show the app preview on screen)*
+
+> "The app is a digital notebook. You can easily add a new card, write your notes, add a date, and tag them however you like — with your own custom tags. Each card also has **edit**, **copy**, and **delete** buttons, so you have full control over your notes. And because everything is saved to the cloud, you can open the app on your phone, your laptop, any device — and see the same notes everywhere."
 
 > "Now — **your app may not look exactly like this.** The AI can produce different designs depending on the exact words in your prompt and the model you choose. That is completely fine — and actually one of the interesting things about working with AI. The core features will be there: the flashcards, the categories, the search, the cloud sync. The visual style may vary."
 
