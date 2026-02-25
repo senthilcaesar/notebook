@@ -207,35 +207,7 @@
       flex-wrap: wrap;
     }
 
-    /* Category filter pills */
-    .filter-bar {
-      display: flex;
-      gap: 7px;
-      flex-wrap: wrap;
-    }
 
-    .filter-pill {
-      border: none;
-      cursor: pointer;
-      padding: 5px 13px;
-      border-radius: 20px;
-      font-family: var(--font-ui);
-      font-size: 0.76rem;
-      font-weight: 500;
-      transition: all 0.2s ease;
-      background: rgba(255, 255, 255, 0.15);
-      color: rgba(255, 255, 255, 0.85);
-      border: 1.5px solid rgba(255, 255, 255, 0.2);
-    }
-
-    .filter-pill:hover,
-    .filter-pill.active {
-      background: #fff;
-      color: var(--pencil);
-      border-color: #fff;
-      transform: translateY(-1px);
-      box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2);
-    }
 
     .btn-add {
       display: flex;
@@ -451,9 +423,9 @@
 
     .card-header {
       display: flex;
-      align-items: flex-start;
+      align-items: center;
       justify-content: space-between;
-      margin-bottom: 10px;
+      margin-bottom: 4px;
       gap: 8px;
     }
 
@@ -461,15 +433,23 @@
       font-family: var(--font-hand);
       font-size: 0.88rem;
       color: var(--pencil-light);
+      line-height: 1;
+    }
+
+    .card-header .category-badges {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      justify-content: flex-end;
     }
 
     .category-badge {
       display: inline-flex;
       align-items: center;
       gap: 4px;
-      padding: 3px 10px;
+      padding: 3px 8px;
       border-radius: 12px;
-      font-size: 0.7rem;
+      font-size: 0.65rem;
       font-weight: 600;
       letter-spacing: 0.4px;
       text-transform: uppercase;
@@ -702,10 +682,69 @@
     .form-row {
       display: flex;
       gap: 16px;
+      align-items: flex-end;
     }
 
     .form-row .form-group {
       flex: 1;
+    }
+
+    /* Tag Chip system in modal */
+    .tag-input-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      padding: 6px 4px;
+      border-bottom: 2px solid var(--line-color);
+      min-height: 42px;
+    }
+
+    .tag-input-container:focus-within {
+      border-bottom-color: var(--accent-desk);
+    }
+
+    .tag-chip {
+      background: var(--accent-desk);
+      color: white;
+      padding: 2px 10px;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .tag-chip .remove-tag {
+      cursor: pointer;
+      font-size: 0.75rem;
+      opacity: 0.8;
+    }
+
+    .tag-chip .remove-tag:hover {
+      opacity: 1;
+    }
+
+    #tagInput {
+      border: none !important;
+      flex: 1;
+      min-width: 100px;
+      padding: 0 !important;
+      font-family: var(--font-hand);
+      font-size: 1.1rem;
+      background: transparent;
+      outline: none;
+    }
+
+    body.dark .tag-input-container {
+      border-bottom-color: rgba(255, 255, 255, 0.15);
+    }
+
+    body.dark .tag-input-container:focus-within {
+      border-bottom-color: #6aaf7a;
+    }
+
+    body.dark .tag-chip {
+      background: #3a6b4a;
     }
 
     .modal-actions {
@@ -1122,15 +1161,7 @@
           <span class="sync-label" id="syncLabel">Connecting…</span>
         </span>
 
-        <!-- Category filter pills -->
-        <div class="filter-bar" role="group" aria-label="Filter by category">
-          <button class="filter-pill active" data-filter="all">All</button>
-          <button class="filter-pill" data-filter="prompt">⚙️Prompt</button>
-          <button class="filter-pill" data-filter="coding">💻 Coding</button>
-          <button class="filter-pill" data-filter="general">📌 General</button>
-          <button class="filter-pill" data-filter="research">🔬 Research</button>
-          <button class="filter-pill" data-filter="other">🗂 Other</button>
-        </div>
+
 
         <button class="btn-add" id="openModalBtn">
           <i class="fa fa-plus"></i> New Card
@@ -1171,14 +1202,11 @@
           <input type="text" id="inputTitle" placeholder="Topic or heading…" maxlength="80" autocomplete="off" />
         </div>
         <div class="form-group">
-          <label for="inputCategory">Category</label>
-          <select id="inputCategory">
-            <option value="prompt">⚙️ Prompt</option>
-            <option value="coding">💻 Coding</option>
-            <option value="general" selected>📌 General</option>
-            <option value="research">🔬 Research</option>
-            <option value="other">🗂 Other</option>
-          </select>
+          <label>Tags (Enter to add)</label>
+          <div class="tag-input-container" id="tagInputContainer">
+            <!-- chips go here -->
+            <input type="text" id="tagInput" placeholder="Add tag..." autocomplete="off" />
+          </div>
         </div>
       </div>
 
@@ -1296,18 +1324,20 @@
     };
 
     let allCards = [];   // live cache from Firestore
-    let activeFilter = 'all';
     let searchQuery = '';
 
     function renderCards() {
       const filtered = allCards.filter(c => {
-        const matchCat = activeFilter === 'all' || c.category === activeFilter;
         const q = searchQuery.toLowerCase();
+        // Handle both old 'category' and new 'tags'
+        const tags = c.tags || (c.category ? [c.category] : []);
+        const lowerTags = tags.map(t => t.toLowerCase());
+
         const matchSearch = !q ||
           (c.title || '').toLowerCase().includes(q) ||
           (c.note || '').toLowerCase().includes(q) ||
-          (c.category || '').toLowerCase().includes(q);
-        return matchCat && matchSearch;
+          lowerTags.some(t => t.includes(q));
+        return matchSearch;
       });
 
       $('#cardCount').textContent = `${filtered.length} card${filtered.length !== 1 ? 's' : ''}`;
@@ -1331,14 +1361,19 @@
     function buildCardHTML(c) {
       const holeCount = 5 + (c.id.charCodeAt(0) % 4);
       const holes = '<div class="hole"></div>'.repeat(holeCount);
-      const meta = CATEGORY_META[c.category] || CATEGORY_META.other;
+      const tags = c.tags || (c.category ? [c.category] : []);
+      const tagHtml = tags.map(t => {
+        const meta = CATEGORY_META[t.toLowerCase()] || { label: t, cls: 'badge-other' };
+        return `<span class="category-badge ${meta.cls}">${meta.label}</span>`;
+      }).join('');
+
       return `
     <article class="card" data-id="${c.id}">
       <div class="card-holes">${holes}</div>
       <div class="card-content">
         <div class="card-header">
           <span class="card-date">${escHtml(formatDate(c.date))}</span>
-          <span class="category-badge ${meta.cls}">${meta.label}</span>
+          <div class="category-badges">${tagHtml}</div>
         </div>
         <div class="card-title">${escHtml(c.title || 'Untitled')}</div>
         <div class="card-body">${escHtml(c.note || '')}</div>
@@ -1460,7 +1495,8 @@
       editingId = null;
       $('#modalTitle').textContent = '✏️ New Flashcard';
       $('#inputTitle').value = '';
-      $('#inputCategory').value = 'general';
+      currentTags = ['General'];
+      renderTagChips();
       $('#inputNote').value = '';
       $('#inputDate').value = todayISO();
       $('#modalOverlay').classList.add('open');
@@ -1473,7 +1509,8 @@
       editingId = id;
       $('#modalTitle').textContent = '✏️ Edit Flashcard';
       $('#inputTitle').value = card.title || '';
-      $('#inputCategory').value = card.category || 'general';
+      currentTags = card.tags || (card.category ? [card.category] : []);
+      renderTagChips();
       $('#inputNote').value = card.note || '';
       $('#inputDate').value = card.date || todayISO();
       $('#modalOverlay').classList.add('open');
@@ -1488,8 +1525,8 @@
     async function saveCard() {
       const title = $('#inputTitle').value.trim();
       const note = $('#inputNote').value.trim();
-      const category = $('#inputCategory').value;
       const date = $('#inputDate').value;
+      const tags = currentTags;
 
       if (!title && !note) { showToast('Please enter a title or note', 'error'); return; }
 
@@ -1498,11 +1535,12 @@
       saveBtn.textContent = 'Saving…';
 
       try {
+        const data = { title, note, tags, date };
         if (editingId) {
-          await fsUpdateCard(editingId, { title, note, category, date });
+          await fsUpdateCard(editingId, data);
           showToast('Card updated! 📝');
         } else {
-          await fsAddCard({ title, note, category, date });
+          await fsAddCard(data);
           showToast('Card saved! 🎉');
         }
         closeModal();
@@ -1514,6 +1552,51 @@
         saveBtn.textContent = 'Save Card';
       }
     }
+
+    /* ── Tag management logic ── */
+    let currentTags = [];
+
+    function renderTagChips() {
+      const container = $('#tagInputContainer');
+      const input = $('#tagInput');
+      // Remove all existing chips
+      $$('.tag-chip', container).forEach(el => el.remove());
+
+      currentTags.forEach((tag, index) => {
+        const chip = document.createElement('div');
+        chip.className = 'tag-chip';
+        chip.innerHTML = `${escHtml(tag)} <span class="remove-tag" data-index="${index}">&times;</span>`;
+        container.insertBefore(chip, input);
+      });
+
+      $$('.remove-tag', container).forEach(btn => {
+        btn.onclick = (e) => {
+          const idx = parseInt(e.target.dataset.index);
+          currentTags.splice(idx, 1);
+          renderTagChips();
+        };
+      });
+    }
+
+    $('#tagInput').addEventListener('keydown', e => {
+      if (e.key === 'Enter' || e.key === ',') {
+        e.preventDefault();
+        const val = e.target.value.trim().replace(/,$/, '');
+        if (val && !currentTags.includes(val)) {
+          currentTags.push(val);
+          e.target.value = '';
+          renderTagChips();
+        }
+      } else if (e.key === 'Backspace' && !e.target.value && currentTags.length > 0) {
+        currentTags.pop();
+        renderTagChips();
+      }
+    });
+
+    // Make container click focus input
+    $('#tagInputContainer').onclick = (e) => {
+      if (e.target === $('#tagInputContainer')) $('#tagInput').focus();
+    };
 
     /* ─────────────────────────────────── */
     /* Auth                                */
@@ -1569,14 +1652,7 @@
       if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') saveCard();
     });
 
-    $$('.filter-pill').forEach(btn => {
-      btn.addEventListener('click', () => {
-        $$('.filter-pill').forEach(p => p.classList.remove('active'));
-        btn.classList.add('active');
-        activeFilter = btn.dataset.filter;
-        renderCards();
-      });
-    });
+
 
     $('#searchInput').addEventListener('input', e => {
       searchQuery = e.target.value;
