@@ -72,6 +72,8 @@
 
 > "First, we need to create a GitHub account. Think of GitHub as a cloud folder for code files — similar to Google Drive, but for developers."
 
+> "**Quick check — does anyone here already have a GitHub account?** If you do, feel free to skip this step and go straight to Step 1.2 where we create a new repository. For everyone else, let's create an account now."
+
 > "Open Google Chrome. Go to **github.com**."
 
 *(Wait for everyone)*
