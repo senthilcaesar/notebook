@@ -16,11 +16,12 @@
 
 > "To build and launch this app, we will use three tools. All of them are **free**. Let me quickly walk you through what each one does."
 
-> "**Antigravity** — this is the AI coding assistant. We type our instructions in plain English, and it writes all the code for us."
+> "**GitHub & GitHub Pages** — this is where we store the code and publish it as a live website. Think of it like Google Drive for code — except it also gives you a real URL on the internet." 
+
+> "**Antigravity** — this is an AI coding tool built for software development. It comes with a powerful AI model inside. We will use it by simply typing our instructions in plain English — no coding knowledge needed — and the model will build the app for us."
 
 > "**Firebase** — this is Google's cloud service. It stores your notes securely in the cloud and handles the login with your Google account."
 
-> "**GitHub & GitHub Pages** — this is where we store the code and publish it as a live website. Think of it like Google Drive for code — except it also gives you a real URL on the internet."
 
 > "That is it. Three tools. Let's see what we are building."
 
