@@ -12,6 +12,8 @@
 
 > "Today, we are going to build a real web app together. You will publish it on the internet. At the end of today, you will have your own personal URL — something like *your-name.github.io/flashcards* — that you can share with anyone."
 
+> "And here is the exciting part — **we are going to use AI to create this app.** You will not write a single line of code yourself. You will simply describe what you want in plain English, and the AI will build it for you."
+
 > "The app is a digital notebook. You can store notes as flashcards. You can organise them by category. You can search them. And you can open the app on your phone, your laptop, any device — because the notes are saved in the cloud."
 
 > "Let me show you a quick preview of the app I built using this process."
