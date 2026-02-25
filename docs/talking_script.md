@@ -33,15 +33,21 @@
 
 > "Now — **your app may not look exactly like this.** The AI can produce different designs depending on the exact words in your prompt and the model you choose. That is completely fine — and actually one of the interesting things about working with AI. The core features will be there: the flashcards, the categories, the search, the cloud sync. The visual style may vary."
 
-> "Here is the most important thing I want you to hear: **you will not write a single line of code yourself.** We will use an AI assistant called Antigravity to write all the code for us. Our job is to give the AI the right instructions."
-
 > "Also — everything we use today is **completely free.** No credit card. No subscription. Google gives us one gigabyte of free cloud storage with Firebase — that is enough to store tens of thousands of notes."
 
-> "Before we start — let me check one thing. Can everyone open their Terminal and type `git --version`? You should see a number on the screen. Raise your hand if it says 'command not found'."
+> "Before we start — let me check one thing. Can everyone open their Terminal and type `git --version`? You should see a number on the screen."
+
+*(Wait for everyone to check)*
+
+> "If you see 'command not found', you need to install Git first. Here is how:"
+
+> "Go to **git-scm.com/download/mac** in Chrome. The download will start automatically. Open the downloaded file and follow the installer steps — click Continue, Install, and enter your Mac password if asked."
+
+> "Once it is installed, close Terminal, open it again, and type `git --version`. You should now see a version number."
 
 *(Wait and help anyone with issues)*
 
-> "Good. Let's begin."
+> "Good. Everyone has Git. Let's begin."
 
 ---
 ---
