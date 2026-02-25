@@ -35,19 +35,31 @@
 
 > "Also — everything we use today is **completely free.** No credit card. No subscription. Google gives us one gigabyte of free cloud storage with Firebase — that is enough to store tens of thousands of notes."
 
-> "Before we start — let me check one thing. Can everyone open their Terminal and type `git --version`? You should see a number on the screen."
+> "Before we move to the next step — which is creating a GitHub account — we need to make sure Git is installed on your Mac."
+
+> "Let me quickly explain what Git is and why we need it."
+
+> "**Git** is a helper tool that lives on your System. Its job is simple — it helps you upload and host your app's code to your GitHub account, so it can be published as a live website on the internet."
+
+> "We will use a few simple Git commands to host our code online in your GitHub account. I will give you each command to copy and paste — you do not need to memorise anything."
+
+> "I have already installed Git on my system. Now I need you to do the same on yours."
+
+> "Open Terminal and type `git --version`. Press Enter. You should see a version number on the screen."
 
 *(Wait for everyone to check)*
 
-> "If you see 'command not found', you need to install Git first. Here is how:"
+> "If you see a version number — great, you are ready. If you see 'command not found', you need to install Git first. Here is how:"
 
 > "Go to **git-scm.com/download/mac** in Chrome. The download will start automatically. Open the downloaded file and follow the installer steps — click Continue, Install, and enter your Mac password if asked."
 
 > "Once it is installed, close Terminal, open it again, and type `git --version`. You should now see a version number."
 
+> "**Important — please do not move to the next step until Git is installed and working on your system.** Take your time. Raise your hand if you need help and I will come to you."
+
 *(Wait and help anyone with issues)*
 
-> "Good. Everyone has Git. Let's begin."
+> "Good. Everyone has Git. Now we are ready to move to Phase 1 — setting up your GitHub account."
 
 ---
 ---
