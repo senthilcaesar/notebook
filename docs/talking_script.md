@@ -161,7 +161,7 @@
 ---
 
 **[DISPLAY ON SCREEN:]**
-> *"Build me a personal notes web app as a single HTML file. I want to save my notes as flashcards that look like handwritten notebook pages — styled to resemble a student's ruled paper with a pencil feel. Each flashcard should have: a title, a date, a category tag, a note body, a copy button, and a delete button. I should be able to filter my cards by category. Default categories are: Coding, General, and Research. For now, save notes in the browser's local storage. After building the app, also create a CLAUDE.md file that explains what was built."*
+> *"Build me a personal notes web app as a single HTML file. I want to save my notes as flashcards that look like handwritten notebook pages — styled to resemble a student's ruled paper with a pencil feel. Each flashcard should have: a title, a date, a note body, a copy button, an edit button, and a delete button. Each flashcard should also support multiple free-form tags — the user can type and add as many tags as they like (for example: 'python', 'meeting notes', 'ideas'). Tags should be displayed as small badge labels on the card. For now, save notes in the browser's local storage. After building the app, also create a CLAUDE.md file that explains what was built."*
 
 ---
 
@@ -179,7 +179,7 @@
 
 > "Antigravity has created two files for you."
 
-> "The first one is called **flashcards.html** — this is your entire web app. Everything is inside this one file."
+> "The first one is called **index.html** — this is your entire web app. Everything is inside this one file."
 
 > "The second one is **CLAUDE.md** — this is a documentation file. Think of it as a summary of what the AI built. You can use it later as a reference."
 
@@ -203,7 +203,7 @@
 
 > "Open a new tab in Chrome. Go to:"
 
-> `http://localhost:3000/flashcards.html`
+> `http://localhost:3000/index.html`
 
 > "You should see your notebook app. There are some example flashcards already loaded. Click the filter buttons at the top. Try searching for a word. Click 'New Card' and add a note."
 
@@ -385,9 +385,9 @@ const firebaseConfig = {
 
 ### Step 4.2 — Paste Your Firebase Config
 
-> "Antigravity has updated your `flashcards.html` file. But there is one thing we need to do manually — paste in the Firebase keys that are unique to your project."
+> "Antigravity has updated your `index.html` file. But there is one thing we need to do manually — paste in the Firebase keys that are unique to your project."
 
-> "Find your `flashcards.html` file. Right-click it. Choose **Open With**. Choose **TextEdit**."
+> "Find your `index.html` file. Right-click it. Choose **Open With**. Choose **TextEdit**."
 
 > "On your keyboard, press **Command + F**. This opens a search box. Type: `YOUR_API_KEY`."
 
@@ -413,7 +413,7 @@ const firebaseConfig = {
 > `git init`
 
 > "**Command 2:** Tell Git to include your HTML file:"
-> `git add flashcards.html`
+> `git add index.html`
 
 > "**Command 3:** Save a snapshot. This is called a commit:"
 > `git commit -m "Initial flashcard app with Firebase"`
@@ -496,7 +496,7 @@ const firebaseConfig = {
 ### Step 5.1 — Open Your Live URL
 
 > "Open a new tab in Chrome. Type your URL:"
-> `https://YOUR-USERNAME.github.io/flashcards/flashcards.html`
+> `https://YOUR-USERNAME.github.io/flashcards/index.html`
 
 > "You should see the notebook app with a green background and a 'Sign in with Google' button."
 

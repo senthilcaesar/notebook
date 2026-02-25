@@ -148,7 +148,7 @@ Copy and paste the following prompt **exactly as written** into Antigravity and 
 
 > **📋 The Prompt (copy this exactly):**
 >
-> *"Build me a personal notes web app as a single HTML file. I want to save my notes as flashcards that look like handwritten notebook pages — styled to resemble a student's ruled paper with a pencil feel. Each flashcard should have: a title, a date, a category tag, a note body, a copy button, and a delete button. I should be able to filter my cards by category. Default categories are: Coding, General, and Research. For now, save notes in the browser's local storage. After building the app, also create a CLAUDE.md file that explains what was built."*
+> *"Build me a personal notes web app as a single HTML file. I want to save my notes as flashcards that look like handwritten notebook pages — styled to resemble a student's ruled paper with a pencil feel. Each flashcard should have: a title, a date, a note body, a copy button, an edit button, and a delete button. Each flashcard should also support multiple free-form tags — the user can type and add as many tags as they like (for example: 'python', 'meeting notes', 'ideas'). Tags should be displayed as small badge labels on the card. For now, save notes in the browser's local storage. After building the app, also create a CLAUDE.md file that explains what was built."*
 
 ---
 
@@ -157,14 +157,14 @@ Copy and paste the following prompt **exactly as written** into Antigravity and 
 ## Step 2.3 — Locate the Generated Files
 
 Antigravity will create two files in your workspace:
-- `flashcards.html` — the complete app
+- `index.html` — the complete app
 - `CLAUDE.md` — documentation of what was built
 
 > **What just happened?** The AI read your plain-English description and translated it into a complete web application. The "UI framework" it chose uses Google Fonts (Caveat for handwriting, Inter for interface text) and Font Awesome icons — all loaded from CDN (the internet), so no installation is needed.
 
 ## Step 2.4 — Preview the App Locally
 
-In Terminal, navigate to the folder containing your `flashcards.html` file:
+In Terminal, navigate to the folder containing your `index.html` file:
 
 ```bash
 cd /path/to/your/folder
@@ -180,7 +180,7 @@ npx serve .
 
 This starts a local web server. Open Chrome and go to:
 ```
-http://localhost:3000/flashcards.html
+http://localhost:3000/index.html
 ```
 
 You should see your notebook app with 5 pre-loaded demo flashcards! ✨
@@ -319,7 +319,7 @@ Now that you've tested the app locally, it's time to upgrade it with cloud stora
 
 ---
 
-Antigravity will rewrite `flashcards.html` to include:
+Antigravity will rewrite `index.html` to include:
 - Firebase SDK
 - Google Sign-In button
 - Firestore database reads and writes
@@ -328,7 +328,7 @@ Antigravity will rewrite `flashcards.html` to include:
 
 ## Step 4.2 — Paste Your Firebase Config
 
-1. Open `flashcards.html` in a text editor  
+1. Open `index.html` in a text editor  
    → Right-click the file → **Open With → TextEdit** (or any text editor)
 2. Use **⌘ Cmd + F** to find the text: `YOUR_API_KEY`
 3. You'll see the placeholder config block:
@@ -360,7 +360,7 @@ git init
 
 **Add your file:**
 ```bash
-git add flashcards.html
+git add index.html
 ```
 
 **Save a snapshot (called a "commit"):**
@@ -428,7 +428,7 @@ Refresh the page. You'll see:
 
 Go to:
 ```
-https://YOUR-USERNAME.github.io/flashcards/flashcards.html
+https://YOUR-USERNAME.github.io/flashcards/index.html
 ```
 
 You should see:
@@ -489,7 +489,7 @@ Your app is live and working — but it's just the beginning. Here are things yo
 
 ## Change the Categories
 
-Open `flashcards.html` in a text editor and find the `CATEGORY_META` section in the JavaScript:
+Open `index.html` in a text editor and find the `CATEGORY_META` section in the JavaScript:
 
 ```javascript
 const CATEGORY_META = {
@@ -569,7 +569,7 @@ Firebase Firestore (Cloud Database) ◄─────────────�
 You've built and deployed a full-stack web application using AI — without writing a single line of code manually.
 
 **Your app URL:**  
-`https://YOUR-USERNAME.github.io/flashcards/flashcards.html`
+`https://YOUR-USERNAME.github.io/flashcards/index.html`
 
 Share it. Use it. Make it your own.
 
