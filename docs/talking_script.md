@@ -51,7 +51,7 @@
 
 > "If you see a version number — great, you are ready. If you see 'command not found', you need to install Git first. Here is how:"
 
-> "Go to **git-scm.com/download/mac** in Chrome. The download will start automatically. Open the downloaded file and follow the installer steps — click Continue, Install, and enter your Mac password if asked."
+> "Go to **git-scm.com/download** in Chrome. You will see options for different operating systems — Windows, Mac, and Linux. Choose the one that matches your system. The download will start automatically. Open the downloaded file and follow the installer steps — just click through and accept the defaults."
 
 > "Once it is installed, close Terminal, open it again, and type `git --version`. You should now see a version number."
 
