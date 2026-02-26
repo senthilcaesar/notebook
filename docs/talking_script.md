@@ -226,7 +226,7 @@
 ---
 
 **[DISPLAY ON SCREEN:]**
-> *"Build me a personal notes web app as a single HTML file named index.html. I want to save my notes as flashcards that look like handwritten notebook pages — styled to resemble a student's ruled paper with a pencil feel. The app should have a dark green header bar at the top. On the left side of the header, show the app title 'My Notebook'. On the right side of the header, place a prominent '+ New Card' button — this is the main way to add a new flashcard. Each flashcard should have: a title, a date, a note body, a copy button, an edit button, and a delete button. Each flashcard should also support multiple free-form tags — the user can type and add as many tags as they like (for example: 'python', 'meeting notes', 'ideas'). Tags should be displayed as small badge labels on the card. For now, save notes in the browser's local storage. After building the app, also create a CLAUDE.md file that explains what was built."*
+> *"Build me a personal notes web app as a single HTML file named index.html. I want to save my notes as flashcards that look like handwritten notebook pages — styled to resemble a student's ruled paper with a pencil feel. The app should have a dark green header bar at the top. On the left side of the header, show the app title 'My Notebook'. On the right side of the header, place a prominent 'New Card' button — this is the main way to add a new flashcard. Also add a dark mode toggle in the top right corner of the app — in light mode show the sun emoji ☀️ and in dark mode show the moon emoji 🌙. The app should auto update when the toggle is switched. Each flashcard should have: a title, a date, a note body, a copy button, an edit button, and a delete button. Each flashcard should also support multiple free-form tags — the user can type and add as many tags as they like (for example: 'python', 'meeting notes', 'ideas'). Tags should be displayed as small badge labels on the card. For now, save notes in the browser's local storage. After building the app, also create a CLAUDE.md file that explains what was built."*
 
 ---
 
@@ -237,6 +237,10 @@
 *(Wait)*
 
 > "Look at what is happening. The AI is writing hundreds of lines of code — HTML, CSS, JavaScript — by itself. We just told it what we wanted in plain English. This is the power of AI-assisted development."
+
+> "Now watch carefully — Antigravity does not just build the app and stop. It actually **verifies its own work**. It will open your browser automatically, load the app, and check that the buttons and features are working as intended. It tests what it built — just like a developer would."
+
+> "This is one of the great features of Antigravity. It does not just write code — it makes sure the code actually works."
 
 ---
 
