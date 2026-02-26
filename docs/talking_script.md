@@ -270,7 +270,7 @@
 
 > "This is your app — running on your Mac right now."
 
-> "But there is one problem. If you close this browser tab and open it again, your cards will still be there — but only in **this browser on this computer**. They are not in the cloud yet. That is what we do next."
+> "In this preview, we can add notes and delete notes. But all the notes live locally in your system. We should be able to access our notes online all the time, so that's what we are gonna work next: to link our app to a cloud database."
 
 ---
 ---
