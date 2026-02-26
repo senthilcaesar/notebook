@@ -138,6 +138,18 @@ Antigravity is now installed on your Mac. You can launch it from your **Applicat
 
 > **Note:** If you already have Antigravity installed, skip this step.
 
+### A Quick Tour of Antigravity
+
+When you first open Antigravity, you will see three main areas:
+
+| Area | What it does |
+|---|---|
+| **Files Panel** (left sidebar) | Shows all the files in your project folder. Every file Antigravity creates will appear here — you can click any file to view it. |
+| **Coding Window** (centre) | This is where the AI writes and edits code. You can watch it work in real time as it builds your app. |
+| **Model Selector** (top of the chat) | Lets you choose which AI model powers the conversation. For today's session, leave it on the default model. |
+
+> **You don't need to change any settings.** Just open Antigravity, point it at your `flashcards` folder, and you're ready to go.
+
 ## Step 2.1 — Create a Project Folder
 
 Before opening Antigravity, create a dedicated folder on your Mac where the app files will be saved.

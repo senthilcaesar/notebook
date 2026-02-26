@@ -173,6 +173,18 @@
 
 *(Help anyone with issues)*
 
+> "Good — everyone has Antigravity installed. Before we move on, let me quickly show you what you will see when you first open it."
+
+> "When Antigravity opens, there are three main areas to know about."
+
+> "On the **left side**, you have the **Files Panel**. This shows all the files in your project folder. Every file the AI creates will appear here automatically — so you can see exactly what was built."
+
+> "In the **centre**, you have the **Coding Window**. This is where the AI writes code in real time. You can watch it work as it builds your app — line by line. You do not need to read or understand the code; just know that is where the magic happens."
+
+> "At the **top of the chat area**, you will see the **Model Selector**. This lets you choose which AI model is being used. For today, leave it on the default — we do not need to change anything."
+
+> "That is it. Three areas. You do not need to configure anything. Just open Antigravity, point it at your flashcards folder, and start typing."
+
 ---
 
 ### Step 2.1 — Create a Project Folder
