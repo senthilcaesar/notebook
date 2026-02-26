@@ -132,11 +132,13 @@
 
 > "Before we use Git, we need to tell it your name and email. Git uses this to track who made changes. We do this only once."
 
-> "In Terminal, type this command — but use **your own name**, not mine:"
+> "I need you to enter the **exact email address and username you used when you created your GitHub account** — not just any name or email. This is important so that Git can link your work correctly to your GitHub profile."
 
-> `git config --global user.name "Your Full Name"`
+> "In Terminal, type this command — replacing the text with your **GitHub username**:"
 
-> "Press Enter. Now type this — using your own email address:"
+> `git config --global user.name "Your GitHub Username"`
+
+> "Press Enter. Now type this — using the **email address you registered with on GitHub**:"
 
 > `git config --global user.email "youremail@gmail.com"`
 

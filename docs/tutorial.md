@@ -102,14 +102,16 @@ Terminal is your Mac's text-based command tool. Think of it like Excel's formula
 
 ## Step 1.4 — Set Up Git (first-time only)
 
-In Terminal, run these two commands (replace with your actual name and email):
+In Terminal, run these two commands. Use the **email address and username you used when creating your GitHub account**:
 
 ```bash
-git config --global user.name "Your Full Name"
+git config --global user.name "Your GitHub Username"
 git config --global user.email "youremail@gmail.com"
 ```
 
 *Press Enter after each line.*
+
+> **Important:** Enter the exact email address and username you registered with on GitHub. This ensures Git can correctly link your commits to your GitHub account.
 
 ---
 
