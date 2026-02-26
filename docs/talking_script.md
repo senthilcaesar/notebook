@@ -213,13 +213,15 @@
 
 ### Step 2.3 — Enter the Prompt
 
-> "I am going to give you a message to send to the AI. This message is called a **prompt**. The prompt is your instruction to the AI — in plain English."
+> "Now open Antigravity. At the bottom of the screen, you will see a **chat area** — a text box where you can type a message. This is where you give your instructions to the AI. You simply type what you want in plain English, and the AI will build it for you."
+
+> "I am going to give you a message to type into that chat area. This message is called a **prompt**. The prompt is your instruction to the AI."
 
 > "I want you to copy this prompt **exactly as it is written**. Do not change any words. The exact wording helps the AI understand what we want."
 
 *(Read the prompt slowly, then tell them to copy-paste it)*
 
-> "Here is the prompt. I will put it on the screen now. Please copy and paste it into Antigravity:"
+> "Here is the prompt. I will put it on the screen now. Please copy and paste it into the **chat area** in Antigravity:"
 
 ---
 
