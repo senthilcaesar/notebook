@@ -125,7 +125,7 @@ This is the magic moment. One prompt. One click. A fully working web app.
 
 Before using Antigravity, you need to download and install it on your Mac. This is a one-time setup.
 
-1. Open Chrome and navigate to the **Antigravity download page**
+1. Open Chrome and go to **[antigravity.google](https://antigravity.google)**
 2. Click the **Download** button to download the installer
 3. Open your **Downloads folder** and double-click the Antigravity installer
 4. Follow the on-screen prompts:
@@ -138,11 +138,23 @@ Antigravity is now installed on your Mac. You can launch it from your **Applicat
 
 > **Note:** If you already have Antigravity installed, skip this step.
 
-## Step 2.1 — Open Antigravity
+## Step 2.1 — Create a Project Folder
 
-Launch Antigravity from your Applications folder (or Spotlight) and start a new conversation.
+Before opening Antigravity, create a dedicated folder on your Mac where the app files will be saved.
 
-## Step 2.2 — Enter the Prompt
+1. Open **Finder**
+2. Navigate to a location you'll remember (e.g. your **Desktop** or **Documents**)
+3. Right-click in the empty space → **New Folder**
+4. Name the folder exactly: `flashcards` *(all lowercase, no spaces)*
+5. Leave this Finder window open — you'll need it shortly
+
+> **Why create this folder first?** Antigravity saves files to whatever folder you have open as your workspace. Creating the folder now ensures your app files land in one organised place, ready to push to GitHub.
+
+## Step 2.2 — Open Antigravity
+
+Launch Antigravity from your Applications folder (or Spotlight) and open your `flashcards` folder as the workspace, then start a new conversation.
+
+## Step 2.3 — Enter the Prompt
 
 Copy and paste the following prompt **exactly as written** into Antigravity and press Send:
 
@@ -156,7 +168,7 @@ Copy and paste the following prompt **exactly as written** into Antigravity and 
 
 > **⏱️ Wait ~30–60 seconds.** Antigravity (powered by Claude Sonnet) will write the entire app — several hundred lines of HTML, CSS, and JavaScript — in one shot. No iteration needed.
 
-## Step 2.3 — Locate the Generated Files
+## Step 2.4 — Locate the Generated Files
 
 Antigravity will create two files in your workspace:
 - `index.html` — the complete app
@@ -164,7 +176,7 @@ Antigravity will create two files in your workspace:
 
 > **What just happened?** The AI read your plain-English description and translated it into a complete web application. The "UI framework" it chose uses Google Fonts (Caveat for handwriting, Inter for interface text) and Font Awesome icons — all loaded from CDN (the internet), so no installation is needed.
 
-## Step 2.4 — Preview the App Locally
+## Step 2.5 — Preview the App Locally
 
 In Terminal, navigate to the folder containing your `index.html` file:
 

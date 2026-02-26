@@ -157,7 +157,7 @@
 
 > "Before we open Antigravity, we need to download and install it on your computer. This is a one-time setup."
 
-> "Open Chrome and go to the **Antigravity download page**. You will see a big download button — click it."
+> "Open Chrome and go to: **antigravity.google** — that is the official download page. You will see a big download button — click it."
 
 > "Once the download finishes, open your **Downloads folder** and double-click the Antigravity installer."
 
@@ -175,15 +175,31 @@
 
 ---
 
-### Step 2.1 — Open Antigravity
+### Step 2.1 — Create a Project Folder
 
-> "Now the fun part. Open Antigravity from your Applications folder — or from Spotlight."
+> "Before we open Antigravity, we need to create a folder on your Mac where your app files will be saved. Let's do that now."
 
-> "Start a new conversation. You will see a text box where you can type a message — just like WhatsApp or email."
+> "Open **Finder**. Go to your Desktop — or Documents — wherever you like to keep things organised."
+
+> "Right-click in an empty space inside that window. You will see a menu. Click **New Folder**."
+
+> "Name the folder exactly: **flashcards** — all lowercase, no spaces. Press Enter."
+
+*(Wait for everyone)*
+
+> "Good. Leave this Finder window open — we will need it in a moment."
 
 ---
 
-### Step 2.2 — Enter the Prompt
+### Step 2.2 — Open Antigravity
+
+> "Now the fun part. Open Antigravity from your Applications folder — or from Spotlight."
+
+> "Open your **flashcards** folder as the workspace inside Antigravity, then start a new conversation. You will see a text box where you can type a message — just like WhatsApp or email."
+
+---
+
+### Step 2.3 — Enter the Prompt
 
 > "I am going to give you a message to send to the AI. This message is called a **prompt**. The prompt is your instruction to the AI — in plain English."
 
@@ -210,7 +226,7 @@
 
 ---
 
-### Step 2.3 — Understand What Was Created
+### Step 2.4 — Understand What Was Created
 
 > "Antigravity has created two files for you."
 
