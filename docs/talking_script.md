@@ -260,27 +260,17 @@
 
 > "Let's take a quick look at what we built before we do anything else."
 
-> "Go back to Terminal. We need to navigate to the folder where your file is saved."
+> "Open **Finder** and go to your **flashcards** folder — the project folder you created earlier."
 
-> "Type **cd** — that stands for 'change directory'. Then type a space. Then drag your project folder from Finder into the Terminal window. It will automatically write the path for you. Press Enter."
+> "You should see the **index.html** file that Antigravity just created."
 
-> "Now type this command:"
+> "**Right-click** on the **index.html** file. In the menu, hover over **Open With**, and then choose your browser — **Google Chrome** or **Safari**."
 
-> `npx serve .`
-
-> "Press Enter. This starts a small local web server on your computer."
-
-> "Open a new tab in Chrome. Go to:"
-
-> `http://localhost:3000/index.html`
-
-> "You should see your notebook app. There are some example flashcards already loaded. Click the filter buttons at the top. Try searching for a word. Click 'New Card' and add a note."
+> "Your notebook app should now open in the browser. You should see the app with flashcards. Try clicking 'New Card' and adding a note. Try the search and filter features."
 
 > "This is your app — running on your Mac right now."
 
 > "But there is one problem. If you close this browser tab and open it again, your cards will still be there — but only in **this browser on this computer**. They are not in the cloud yet. That is what we do next."
-
-> "Press **Control + C** in Terminal to stop the local server."
 
 ---
 ---
