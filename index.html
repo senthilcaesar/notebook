@@ -1116,6 +1116,107 @@
       background: rgba(255, 255, 255, 0.1);
       transform: scale(1.1);
     }
+
+    /* ── Priority badges ── */
+    .badge-priority-low {
+      background: #64748b;
+    }
+    .badge-priority-medium {
+      background: #d97706;
+    }
+    .badge-priority-high {
+      background: #ea580c;
+    }
+    .badge-priority-critical {
+      background: #dc2626;
+    }
+
+    /* ── Pin button on card footer ── */
+    .btn-pin {
+      font-size: 0.82rem;
+    }
+
+    .btn-pin.pinned {
+      color: #f59e0b;
+      border-color: #f59e0b;
+      background: rgba(245, 158, 11, 0.1);
+    }
+
+    .btn-pin.pinned:hover {
+      background: rgba(245, 158, 11, 0.2);
+      color: #d97706;
+    }
+
+    /* ── Pinned card: subtle golden top border ── */
+    .card.pinned-card {
+      border-top: 2.5px solid #f59e0b;
+      box-shadow: 3px 3px 8px var(--shadow), 0 8px 32px rgba(60, 45, 20, 0.12), 0 -2px 12px rgba(245, 158, 11, 0.15);
+    }
+
+    /* ── Modal: priority row ── */
+    .priority-pin-row {
+      display: flex;
+      gap: 16px;
+      align-items: flex-end;
+    }
+
+    .priority-pin-row .form-group {
+      flex: 1;
+    }
+
+    .btn-pin-toggle {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 7px 16px;
+      border-radius: 24px;
+      border: 1.5px solid rgba(0, 0, 0, 0.15);
+      background: transparent;
+      cursor: pointer;
+      font-family: var(--font-ui);
+      font-size: 0.83rem;
+      font-weight: 500;
+      color: var(--pencil-light);
+      transition: all 0.2s ease;
+      white-space: nowrap;
+      margin-bottom: 1px;
+    }
+
+    .btn-pin-toggle:hover {
+      background: rgba(245, 158, 11, 0.08);
+      border-color: #f59e0b;
+      color: #d97706;
+    }
+
+    .btn-pin-toggle.active {
+      background: rgba(245, 158, 11, 0.12);
+      border-color: #f59e0b;
+      color: #d97706;
+      font-weight: 600;
+    }
+
+    /* Dark mode pin + priority */
+    body.dark .card.pinned-card {
+      border-top: 2.5px solid #f59e0b;
+      box-shadow: 3px 3px 12px rgba(0,0,0,0.45), 0 8px 32px rgba(0,0,0,0.35), 0 -2px 14px rgba(245, 158, 11, 0.2);
+    }
+
+    body.dark .btn-pin.pinned {
+      color: #fbbf24;
+      border-color: #fbbf24;
+      background: rgba(251, 191, 36, 0.12);
+    }
+
+    body.dark .btn-pin-toggle {
+      color: #9390b0;
+      border-color: rgba(180, 160, 220, 0.18);
+    }
+
+    body.dark .btn-pin-toggle.active {
+      background: rgba(245, 158, 11, 0.15);
+      border-color: #fbbf24;
+      color: #fbbf24;
+    }
   </style>
 </head>
 
@@ -1218,6 +1319,22 @@
       <div class="form-group">
         <label for="inputDate">Date</label>
         <input type="date" id="inputDate" />
+      </div>
+
+      <div class="priority-pin-row">
+        <div class="form-group">
+          <label for="inputPriority">Priority</label>
+          <select id="inputPriority">
+            <option value="none">— None —</option>
+            <option value="low">🔵 Low</option>
+            <option value="medium">🟡 Medium</option>
+            <option value="high">🟠 High</option>
+            <option value="critical">🔴 Critical</option>
+          </select>
+        </div>
+        <button type="button" class="btn-pin-toggle" id="inputPinBtn">
+          📌 Pin this card
+        </button>
       </div>
 
       <div class="modal-actions">
@@ -1340,6 +1457,9 @@
         return matchSearch;
       });
 
+      // Pinned cards float to the top
+      filtered.sort((a, b) => (b.pinned ? 1 : 0) - (a.pinned ? 1 : 0));
+
       $('#cardCount').textContent = `${filtered.length} card${filtered.length !== 1 ? 's' : ''}`;
 
       if (filtered.length === 0) {
@@ -1353,6 +1473,7 @@
 
       $('#cardsGrid').innerHTML = filtered.map(buildCardHTML).join('');
 
+      $$('.btn-pin').forEach(b => b.addEventListener('click', () => togglePin(b.dataset.id)));
       $$('.copy-btn').forEach(b => b.addEventListener('click', () => copyCard(b.dataset.id)));
       $$('.edit-btn').forEach(b => b.addEventListener('click', () => openEditModal(b.dataset.id)));
       $$('.delete-btn').forEach(b => b.addEventListener('click', () => deleteCard(b.dataset.id)));
@@ -1367,18 +1488,37 @@
         return `<span class="category-badge ${meta.cls}">${meta.label}</span>`;
       }).join('');
 
+      // Priority badge
+      const PRIORITY_META = {
+        low:      { label: '🔵 Low',      cls: 'badge-priority-low' },
+        medium:   { label: '🟡 Medium',   cls: 'badge-priority-medium' },
+        high:     { label: '🟠 High',     cls: 'badge-priority-high' },
+        critical: { label: '🔴 Critical', cls: 'badge-priority-critical' },
+      };
+      const p = (c.priority || 'none').toLowerCase();
+      const priorityBadge = p && p !== 'none' && PRIORITY_META[p]
+        ? `<span class="category-badge ${PRIORITY_META[p].cls}">${PRIORITY_META[p].label}</span>`
+        : '';
+
+      // Pin state
+      const isPinned = !!c.pinned;
+      const pinClass = isPinned ? 'pinned' : '';
+      const pinTitle = isPinned ? 'Unpin card' : 'Pin card';
+      const cardClass = isPinned ? 'card pinned-card' : 'card';
+
       return `
-    <article class="card" data-id="${c.id}">
+    <article class="${cardClass}" data-id="${c.id}">
       <div class="card-holes">${holes}</div>
       <div class="card-content">
         <div class="card-header">
           <span class="card-date">${escHtml(formatDate(c.date))}</span>
-          <div class="category-badges">${tagHtml}</div>
+          <div class="category-badges">${priorityBadge}${tagHtml}</div>
         </div>
         <div class="card-title">${escHtml(c.title || 'Untitled')}</div>
         <div class="card-body">${escHtml(c.note || '')}</div>
       </div>
       <div class="card-footer">
+        <button class="btn-icon btn-pin ${pinClass}" data-id="${c.id}" title="${pinTitle}" aria-label="${pinTitle}"><i class="fa fa-thumbtack"></i></button>
         <button class="btn-icon edit-btn"   data-id="${c.id}" title="Edit"   aria-label="Edit card"><i class="fa fa-pencil"></i></button>
         <button class="btn-icon copy-btn"   data-id="${c.id}" title="Copy"   aria-label="Copy card"><i class="fa fa-copy"></i></button>
         <button class="btn-icon delete-btn" data-id="${c.id}" title="Delete" aria-label="Delete card"><i class="fa fa-trash"></i></button>
@@ -1499,6 +1639,9 @@
       renderTagChips();
       $('#inputNote').value = '';
       $('#inputDate').value = todayISO();
+      $('#inputPriority').value = 'none';
+      $('#inputPinBtn').classList.remove('active');
+      $('#inputPinBtn').dataset.pinned = 'false';
       $('#modalOverlay').classList.add('open');
       setTimeout(() => { $('#inputTitle').focus(); autoResizeNote(); }, 120);
     }
@@ -1513,6 +1656,10 @@
       renderTagChips();
       $('#inputNote').value = card.note || '';
       $('#inputDate').value = card.date || todayISO();
+      $('#inputPriority').value = card.priority || 'none';
+      const isPinned = !!card.pinned;
+      $('#inputPinBtn').dataset.pinned = String(isPinned);
+      $('#inputPinBtn').classList.toggle('active', isPinned);
       $('#modalOverlay').classList.add('open');
       setTimeout(() => { $('#inputTitle').focus(); autoResizeNote(); }, 120);
     }
@@ -1527,6 +1674,8 @@
       const note = $('#inputNote').value.trim();
       const date = $('#inputDate').value;
       const tags = currentTags;
+      const priority = $('#inputPriority').value || 'none';
+      const pinned = $('#inputPinBtn').dataset.pinned === 'true';
 
       if (!title && !note) { showToast('Please enter a title or note', 'error'); return; }
 
@@ -1535,7 +1684,7 @@
       saveBtn.textContent = 'Saving…';
 
       try {
-        const data = { title, note, tags, date };
+        const data = { title, note, tags, date, priority, pinned };
         if (editingId) {
           await fsUpdateCard(editingId, data);
           showToast('Card updated! 📝');
@@ -1550,6 +1699,20 @@
       } finally {
         saveBtn.disabled = false;
         saveBtn.textContent = 'Save Card';
+      }
+    }
+
+    /* ── Toggle pin (from card footer) ── */
+    async function togglePin(id) {
+      const card = allCards.find(c => c.id === id);
+      if (!card) return;
+      const newPinned = !card.pinned;
+      try {
+        await fsUpdateCard(id, { pinned: newPinned });
+        showToast(newPinned ? '📌 Pinned!' : 'Unpinned');
+      } catch (e) {
+        console.error(e);
+        showToast('Could not update pin', 'error');
       }
     }
 
@@ -1645,6 +1808,14 @@
     $('#closeModalBtn').addEventListener('click', closeModal);
     $('#cancelBtn').addEventListener('click', closeModal);
     $('#saveBtn').addEventListener('click', saveCard);
+
+    // Pin toggle button in modal
+    $('#inputPinBtn').addEventListener('click', () => {
+      const btn = $('#inputPinBtn');
+      const isPinned = btn.dataset.pinned === 'true';
+      btn.dataset.pinned = String(!isPinned);
+      btn.classList.toggle('active', !isPinned);
+    });
 
     $('#modalOverlay').addEventListener('click', e => { if (e.target === $('#modalOverlay')) closeModal(); });
     document.addEventListener('keydown', e => {
