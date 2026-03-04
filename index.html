@@ -516,13 +516,14 @@
     /* ── Body clamp wrapper ── */
     .card-body-wrap {
       position: relative;
-      max-height: 168px; /* 6 lines × 28px */
+      max-height: 168px; /* 6 lines × 28px — JS takes over after init */
       overflow: hidden;
-      transition: max-height 0.35s ease;
+      will-change: height; /* hint browser to promote to GPU layer */
     }
 
+    /* WAAPI handles the expand/collapse — CSS expanded class just clears the static clamp */
     .card-body-wrap.expanded {
-      max-height: 2400px; /* large enough for any note */
+      max-height: none;
     }
 
     /* Fade-out gradient at bottom of clipped body */
@@ -534,11 +535,12 @@
       height: 52px;
       background: linear-gradient(to bottom, transparent, var(--paper));
       pointer-events: none;
-      transition: opacity 0.2s ease;
+      transition: opacity 0.25s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
     .card-body-wrap.expanded .card-body-fade {
       opacity: 0;
+      pointer-events: none;
     }
 
     /* ── Read more / Show less button ── */
@@ -1556,22 +1558,59 @@
       initCardExpansion();
     }
 
-    /* Show "Read more" only when content is actually clipped */
+    /* Smooth expand/collapse using Web Animations API (WAAPI) */
     function initCardExpansion() {
+      const CLAMPED_H = 168; // must stay in sync with CSS max-height
+
       $$('.card-body-wrap').forEach(wrap => {
         const body = wrap.querySelector('.card-body');
-        const btn = wrap.closest('.card-content').querySelector('.btn-read-more');
+        const btn  = wrap.closest('.card-content')?.querySelector('.btn-read-more');
+        const fade = wrap.querySelector('.card-body-fade');
         if (!body || !btn) return;
 
-        // Content is clipped if natural scrollHeight exceeds the clamped clientHeight
-        if (body.scrollHeight > wrap.clientHeight + 2) {
-          btn.classList.add('visible');
-          btn.addEventListener('click', () => {
-            const expanded = wrap.classList.toggle('expanded');
-            btn.textContent = expanded ? 'Show less ↑' : 'Read more ↓';
-            btn.setAttribute('aria-expanded', String(expanded));
-          });
-        }
+        // Only activate for cards whose content actually overflows
+        if (body.scrollHeight <= CLAMPED_H + 2) return;
+
+        btn.classList.add('visible');
+
+        // Hand height control from CSS to JS (exact pixels = smooth animation)
+        wrap.style.maxHeight = 'none';
+        wrap.style.height    = CLAMPED_H + 'px';
+
+        let isExpanded  = false;
+        let activeAnim  = null;   // track current animation so we can cancel on rapid clicks
+
+        btn.addEventListener('click', () => {
+          // Cancel any in-progress animation before reversing
+          if (activeAnim) { activeAnim.cancel(); activeAnim = null; }
+
+          const fullH   = body.scrollHeight;
+          const fromH   = isExpanded ? fullH   : CLAMPED_H;
+          const toH     = isExpanded ? CLAMPED_H : fullH;
+
+          // WAAPI: animates only the real delta — compositor-thread smooth
+          activeAnim = wrap.animate(
+            [{ height: fromH + 'px' }, { height: toH + 'px' }],
+            {
+              duration: 300,
+              easing:   'cubic-bezier(0.4, 0, 0.2, 1)', // Material Design standard
+              fill:     'forwards',
+            }
+          );
+
+          isExpanded = !isExpanded;
+          wrap.classList.toggle('expanded', isExpanded);
+          btn.textContent = isExpanded ? 'Show less ↑' : 'Read more ↓';
+          btn.setAttribute('aria-expanded', String(isExpanded));
+          if (fade) fade.style.opacity = isExpanded ? '0' : '1';
+
+          activeAnim.onfinish = () => {
+            // After expand: release to 'auto' so card reflows naturally
+            // After collapse: lock back to clamped pixel value
+            wrap.style.height = isExpanded ? 'auto' : CLAMPED_H + 'px';
+            activeAnim = null;
+          };
+        });
       });
     }
 
