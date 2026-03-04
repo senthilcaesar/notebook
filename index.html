@@ -41,7 +41,7 @@
       --shadow: rgba(60, 45, 20, 0.14);
       --tag-coding: #3b82f6;
       --tag-prompt: #5C4033;
-      --tag-general: #8B8000;
+      --tag-general: #0EA5E9;
       --tag-research: #ec4899;
       --tag-other: #f97316;
       --font-hand: 'Caveat', cursive;
@@ -501,6 +501,79 @@
       background-size: 100% 28px;
       background-position: 0 0;
       padding-bottom: 6px;
+    }
+
+    /* ── Card title: clamp to 2 lines ── */
+    .card-title {
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    /* ── Body clamp wrapper ── */
+    .card-body-wrap {
+      position: relative;
+      max-height: 112px; /* 4 lines × 28px */
+      overflow: hidden;
+      transition: max-height 0.35s ease;
+    }
+
+    .card-body-wrap.expanded {
+      max-height: 2400px; /* large enough for any note */
+    }
+
+    /* Fade-out gradient at bottom of clipped body */
+    .card-body-fade {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 52px;
+      background: linear-gradient(to bottom, transparent, var(--paper));
+      pointer-events: none;
+      transition: opacity 0.2s ease;
+    }
+
+    .card-body-wrap.expanded .card-body-fade {
+      opacity: 0;
+    }
+
+    /* ── Read more / Show less button ── */
+    .btn-read-more {
+      display: none; /* shown via JS only when content is clipped */
+      background: none;
+      border: none;
+      padding: 4px 0 2px 0;
+      font-family: var(--font-ui);
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--accent-desk);
+      cursor: pointer;
+      letter-spacing: 0.3px;
+      transition: color 0.18s;
+    }
+
+    .btn-read-more:hover {
+      color: var(--pencil);
+    }
+
+    .btn-read-more.visible {
+      display: inline-block;
+    }
+
+    /* Dark mode fade gradient matches card background */
+    body.dark .card-body-fade {
+      background: linear-gradient(to bottom, transparent, #22243a);
+    }
+
+    body.dark .btn-read-more {
+      color: #7c83c8;
+    }
+
+    body.dark .btn-read-more:hover {
+      color: #e2d9f3;
     }
 
     .card-footer {
@@ -1477,6 +1550,28 @@
       $$('.copy-btn').forEach(b => b.addEventListener('click', () => copyCard(b.dataset.id)));
       $$('.edit-btn').forEach(b => b.addEventListener('click', () => openEditModal(b.dataset.id)));
       $$('.delete-btn').forEach(b => b.addEventListener('click', () => deleteCard(b.dataset.id)));
+
+      // Wire up expandable card bodies
+      initCardExpansion();
+    }
+
+    /* Show "Read more" only when content is actually clipped */
+    function initCardExpansion() {
+      $$('.card-body-wrap').forEach(wrap => {
+        const body = wrap.querySelector('.card-body');
+        const btn = wrap.closest('.card-content').querySelector('.btn-read-more');
+        if (!body || !btn) return;
+
+        // Content is clipped if natural scrollHeight exceeds the clamped clientHeight
+        if (body.scrollHeight > wrap.clientHeight + 2) {
+          btn.classList.add('visible');
+          btn.addEventListener('click', () => {
+            const expanded = wrap.classList.toggle('expanded');
+            btn.textContent = expanded ? 'Show less ↑' : 'Read more ↓';
+            btn.setAttribute('aria-expanded', String(expanded));
+          });
+        }
+      });
     }
 
     function buildCardHTML(c) {
@@ -1515,7 +1610,11 @@
           <div class="category-badges">${priorityBadge}${tagHtml}</div>
         </div>
         <div class="card-title">${escHtml(c.title || 'Untitled')}</div>
-        <div class="card-body">${escHtml(c.note || '')}</div>
+        <div class="card-body-wrap">
+          <div class="card-body">${escHtml(c.note || '')}</div>
+          <div class="card-body-fade"></div>
+        </div>
+        <button class="btn-read-more" data-id="${c.id}" aria-expanded="false">Read more ↓</button>
       </div>
       <div class="card-footer">
         <button class="btn-icon btn-pin ${pinClass}" data-id="${c.id}" title="${pinTitle}" aria-label="${pinTitle}"><i class="fa fa-thumbtack"></i></button>
