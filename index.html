@@ -1579,7 +1579,7 @@
       const holes = '<div class="hole"></div>'.repeat(holeCount);
       const tags = c.tags || (c.category ? [c.category] : []);
       const tagHtml = tags.map(t => {
-        const meta = CATEGORY_META[t.toLowerCase()] || { label: t, cls: 'badge-other' };
+        const meta = CATEGORY_META[t.toLowerCase()] || { label: t, cls: 'badge-general' };
         return `<span class="category-badge ${meta.cls}">${meta.label}</span>`;
       }).join('');
 
