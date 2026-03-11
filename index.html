@@ -675,6 +675,9 @@
       position: relative;
       transform: translateY(24px);
       transition: transform 0.25s ease;
+      max-height: 90vh;
+      max-height: 90dvh;
+      overflow-y: auto;
     }
 
     .modal-overlay.open .modal {
@@ -1043,6 +1046,8 @@
 
       .modal {
         padding: 22px 16px;
+        max-height: 95vh;
+        max-height: 95dvh;
       }
 
       .form-row {
@@ -1765,8 +1770,17 @@
     /* Auto-resize textarea to fit content */
     function autoResizeNote() {
       const el = $('#inputNote');
+      
+      // Prevent modal scroll teleportation when shrinking textarea
+      const modal = el.closest('.modal');
+      const scrollTop = modal ? modal.scrollTop : 0;
+      
       el.style.height = 'auto';
       el.style.height = Math.max(224, el.scrollHeight) + 'px';
+      
+      if (modal && scrollTop > 0) {
+        modal.scrollTop = scrollTop;
+      }
     }
     $('#inputNote').addEventListener('input', autoResizeNote);
 
