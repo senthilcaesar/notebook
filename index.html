@@ -320,57 +320,81 @@
       background-position: 11px center;
     }
 
-    /* ── Greeting Banner ── */
-    .greeting-banner {
-      padding: 16px 24px 4px;
-      font-family: var(--font-hand);
-      font-size: 1.8rem;
-      color: #fff;
-      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    /* ── Sidebar & Layout ── */
+    .app-content {
+      display: flex;
+      gap: 24px;
+      padding: 0 24px 48px;
+      align-items: flex-start;
     }
 
-    /* ── Tag Filter Strip ── */
-    .tag-filter-wrap {
-      padding: 12px 24px;
+    .sidebar {
+      width: 220px;
+      flex-shrink: 0;
+      position: sticky;
+      top: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .sidebar-section h3 {
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: rgba(255, 255, 255, 0.6);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 12px;
+      padding-left: 8px;
+    }
+
+    .tag-list {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .tag-item {
       display: flex;
       align-items: center;
-      gap: 12px;
-      overflow-x: auto;
-      scrollbar-width: none; /* Hide scrollbar Firefox */
-    }
-
-    .tag-filter-wrap::-webkit-scrollbar {
-      display: none; /* Hide scrollbar Chrome/Safari */
-    }
-
-    .tag-filter-chip {
-      padding: 6px 14px;
-      background: rgba(255, 255, 255, 0.15);
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      border-radius: 20px;
+      gap: 10px;
+      padding: 10px 14px;
+      border-radius: 12px;
       color: #fff;
-      font-size: 0.82rem;
+      font-size: 0.9rem;
       font-weight: 500;
       cursor: pointer;
-      white-space: nowrap;
       transition: all 0.2s;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.1);
     }
 
-    .tag-filter-chip:hover {
-      background: rgba(255, 255, 255, 0.25);
+    .tag-item:hover {
+      background: rgba(255, 255, 255, 0.15);
+      transform: translateX(4px);
     }
 
-    .tag-filter-chip.active {
+    .tag-item.active {
       background: #fff;
       color: var(--accent-desk);
       font-weight: 600;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      border-color: #fff;
     }
 
-    body.dark .tag-filter-chip.active {
+    body.dark .tag-item.active {
       background: #7c83c8;
       color: #fff;
+      border-color: #7c83c8;
     }
+
+    .tag-item .tag-count {
+      margin-left: auto;
+      font-size: 0.75rem;
+      opacity: 0.6;
+    }
+
+    /* ── Greeting Banner ── */
 
     .search-input:focus {
       background-color: #fff;
@@ -438,15 +462,13 @@
       color: rgba(255, 255, 255, 0.6);
     }
 
-    /* ───────────────────────────────────────────
-       CARDS GRID
-    ─────────────────────────────────────────── */
+    /* ── CARDS GRID ── */
     .cards-grid {
-      padding: 22px 24px 48px;
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
       gap: 24px;
       align-items: start;
+      flex: 1;
     }
 
     .card {
@@ -1174,6 +1196,37 @@
         padding: 10px 14px 0;
       }
 
+      .app-content {
+        flex-direction: column;
+        padding: 0 14px 48px;
+        gap: 16px;
+      }
+
+      .sidebar {
+        width: 100%;
+        position: static;
+      }
+
+      .tag-list {
+        flex-direction: row;
+        overflow-x: auto;
+        padding-bottom: 4px;
+        scrollbar-width: none;
+      }
+
+      .tag-list::-webkit-scrollbar {
+        display: none;
+      }
+
+      .tag-item {
+        padding: 6px 14px;
+        border-radius: 20px;
+      }
+
+      .tag-item:hover {
+        transform: none;
+      }
+
       .modal {
         padding: 22px 16px;
         max-height: 95vh;
@@ -1498,13 +1551,20 @@
       <span class="card-count" id="cardCount"></span>
     </div>
 
-    <!-- TAG FILTER STRIP -->
-    <div class="tag-filter-wrap" id="tagFilterStrip">
-      <!-- Chips populated by JS -->
-    </div>
+    <!-- TAG FILTER & CARDS -->
+    <div class="app-content">
+      <aside class="sidebar" id="sidebar">
+        <div class="sidebar-section">
+          <h3>Collection</h3>
+          <div class="tag-list" id="tagList">
+            <!-- Populated by JS -->
+          </div>
+        </div>
+      </aside>
 
-    <!-- CARDS -->
-    <main class="cards-grid" id="cardsGrid" aria-label="Flashcards"></main>
+      <!-- CARDS -->
+      <main class="cards-grid" id="cardsGrid" aria-label="Flashcards"></main>
+    </div>
 
   </div><!-- /appShell -->
 
@@ -1695,16 +1755,25 @@
 
     function renderTagFilter() {
       const tags = getUniqueTags();
-      const container = $('#tagFilterStrip');
+      const container = $('#tagList');
       
       container.innerHTML = tags.map(t => {
         const isActive = t === activeTag;
-        return `<div class="tag-filter-chip ${isActive ? 'active' : ''}" data-tag="${t}">${t}</div>`;
+        const count = t === 'All' 
+          ? allCards.length 
+          : allCards.filter(c => (c.tags || (c.category ? [c.category] : [])).includes(t)).length;
+          
+        return `
+          <div class="tag-item ${isActive ? 'active' : ''}" data-tag="${t}">
+            <i class="fa ${t === 'All' ? 'fa-layer-group' : 'fa-tag'}"></i>
+            <span>${t}</span>
+            <span class="tag-count">${count}</span>
+          </div>`;
       }).join('');
       
-      $$('.tag-filter-chip').forEach(chip => {
-        chip.addEventListener('click', () => {
-          activeTag = chip.dataset.tag;
+      $$('.tag-item').forEach(item => {
+        item.addEventListener('click', () => {
+          activeTag = item.dataset.tag;
           renderTagFilter();
           renderCards();
         });
