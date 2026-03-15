@@ -44,8 +44,27 @@
       --tag-general: #425D7F;
       --tag-research: #ec4899;
       --tag-other: #f97316;
+      
+      /* Sticky Note Colors (Light) */
+      --note-cream: #fdf8ed;
+      --note-yellow: #fef3c7;
+      --note-pink: #fce7f3;
+      --note-blue: #e0f2fe;
+      --note-green: #dcfce7;
+      --note-lavender: #ede9fe;
+
       --font-hand: 'Caveat', cursive;
       --font-ui: 'Inter', sans-serif;
+    }
+
+    body.dark {
+      /* Sticky Note Colors (Dark) */
+      --note-cream: #22243a;
+      --note-yellow: #3e3a2e;
+      --note-pink: #3e2e3a;
+      --note-blue: #2e3a4e;
+      --note-green: #2e3e34;
+      --note-lavender: #342e4e;
     }
 
     body {
@@ -301,6 +320,58 @@
       background-position: 11px center;
     }
 
+    /* ── Greeting Banner ── */
+    .greeting-banner {
+      padding: 16px 24px 4px;
+      font-family: var(--font-hand);
+      font-size: 1.8rem;
+      color: #fff;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+
+    /* ── Tag Filter Strip ── */
+    .tag-filter-wrap {
+      padding: 12px 24px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      overflow-x: auto;
+      scrollbar-width: none; /* Hide scrollbar Firefox */
+    }
+
+    .tag-filter-wrap::-webkit-scrollbar {
+      display: none; /* Hide scrollbar Chrome/Safari */
+    }
+
+    .tag-filter-chip {
+      padding: 6px 14px;
+      background: rgba(255, 255, 255, 0.15);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 20px;
+      color: #fff;
+      font-size: 0.82rem;
+      font-weight: 500;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.2s;
+    }
+
+    .tag-filter-chip:hover {
+      background: rgba(255, 255, 255, 0.25);
+    }
+
+    .tag-filter-chip.active {
+      background: #fff;
+      color: var(--accent-desk);
+      font-weight: 600;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    }
+
+    body.dark .tag-filter-chip.active {
+      background: #7c83c8;
+      color: #fff;
+    }
+
     .search-input:focus {
       background-color: #fff;
       box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.4);
@@ -310,7 +381,23 @@
       font-size: 0.8rem;
       color: rgba(255, 255, 255, 0.65);
       font-weight: 500;
+      margin-left: auto;
     }
+
+    /* ── Note Color Variants ── */
+    .card.note-yellow { background-color: var(--note-yellow); }
+    .card.note-pink { background-color: var(--note-pink); }
+    .card.note-blue { background-color: var(--note-blue); }
+    .card.note-green { background-color: var(--note-green); }
+    .card.note-lavender { background-color: var(--note-lavender); }
+    .card.note-cream { background-color: var(--note-cream); }
+    
+    body.dark .card.note-yellow { background-image: none; }
+    body.dark .card.note-pink { background-image: none; }
+    body.dark .card.note-blue { background-image: none; }
+    body.dark .card.note-green { background-image: none; }
+    body.dark .card.note-lavender { background-image: none; }
+    body.dark .card.note-cream { background-image: none; }
 
     /* ── Sync indicator ── */
     .sync-dot {
@@ -825,6 +912,49 @@
     body.dark .tag-chip {
       background: #3d3f6a;
     }
+
+    /* Color Picker in Modal */
+    .color-picker {
+      display: flex;
+      gap: 10px;
+      margin-top: 8px;
+    }
+
+    .color-option {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      cursor: pointer;
+      border: 2px solid transparent;
+      transition: transform 0.2s, border-color 0.2s;
+    }
+
+    .color-option:hover {
+      transform: scale(1.15);
+    }
+
+    .color-option.selected {
+      border-color: var(--pencil);
+      transform: scale(1.1);
+    }
+
+    body.dark .color-option.selected {
+      border-color: #fff;
+    }
+
+    .color-cream { background-color: #fdf8ed; }
+    .color-yellow { background-color: #fef3c7; }
+    .color-pink { background-color: #fce7f3; }
+    .color-blue { background-color: #e0f2fe; }
+    .color-green { background-color: #dcfce7; }
+    .color-lavender { background-color: #ede9fe; }
+
+    body.dark .color-cream { background-color: #2e3049; }
+    body.dark .color-yellow { background-color: #4d4434; }
+    body.dark .color-pink { background-color: #4a3444; }
+    body.dark .color-blue { background-color: #34445c; }
+    body.dark .color-green { background-color: #344a3e; }
+    body.dark .color-lavender { background-color: #3e345c; }
 
     .modal-actions {
       display: flex;
@@ -1343,8 +1473,6 @@
           <span class="sync-label" id="syncLabel">Connecting…</span>
         </span>
 
-
-
         <button class="btn-add" id="openModalBtn">
           <i class="fa fa-plus"></i> New Card
         </button>
@@ -1360,11 +1488,19 @@
       </div>
     </header>
 
+    <!-- GREETING -->
+    <div class="greeting-banner" id="greetingBanner" style="display:none;"></div>
+
     <!-- SEARCH -->
     <div class="search-wrap">
       <input type="search" id="searchInput" class="search-input" placeholder="Search cards…"
         aria-label="Search flashcards" />
       <span class="card-count" id="cardCount"></span>
+    </div>
+
+    <!-- TAG FILTER STRIP -->
+    <div class="tag-filter-wrap" id="tagFilterStrip">
+      <!-- Chips populated by JS -->
     </div>
 
     <!-- CARDS -->
@@ -1416,6 +1552,18 @@
         <button type="button" class="btn-pin-toggle" id="inputPinBtn">
           📌 Pin this card
         </button>
+      </div>
+
+      <div class="form-group" style="margin-top: 12px;">
+        <label>Selected Color</label>
+        <div class="color-picker" id="colorPicker">
+          <div class="color-option color-cream selected" data-color="cream" title="Cream"></div>
+          <div class="color-option color-yellow" data-color="yellow" title="Yellow"></div>
+          <div class="color-option color-pink" data-color="pink" title="Pink"></div>
+          <div class="color-option color-blue" data-color="blue" title="Blue"></div>
+          <div class="color-option color-green" data-color="green" title="Green"></div>
+          <div class="color-option color-lavender" data-color="lavender" title="Lavender"></div>
+        </div>
       </div>
 
       <div class="modal-actions">
@@ -1523,6 +1671,45 @@
 
     let allCards = [];   // live cache from Firestore
     let searchQuery = '';
+    let activeTag = 'All'; // Current filter tag
+
+    function getGreeting(name) {
+      const hour = new Date().getHours();
+      let greet = 'Good ';
+      if (hour < 12) greet += 'morning';
+      else if (hour < 18) greet += 'afternoon';
+      else greet += 'evening';
+      
+      const firstName = (name || '').split(' ')[0];
+      return `✨ ${greet}${firstName ? ', ' + firstName : ''}!`;
+    }
+
+    function getUniqueTags() {
+      const tagSet = new Set(['All']);
+      allCards.forEach(c => {
+        const tags = c.tags || (c.category ? [c.category] : []);
+        tags.forEach(t => tagSet.add(t));
+      });
+      return [...tagSet].sort((a,b) => a === 'All' ? -1 : b === 'All' ? 1 : a.localeCompare(b));
+    }
+
+    function renderTagFilter() {
+      const tags = getUniqueTags();
+      const container = $('#tagFilterStrip');
+      
+      container.innerHTML = tags.map(t => {
+        const isActive = t === activeTag;
+        return `<div class="tag-filter-chip ${isActive ? 'active' : ''}" data-tag="${t}">${t}</div>`;
+      }).join('');
+      
+      $$('.tag-filter-chip').forEach(chip => {
+        chip.addEventListener('click', () => {
+          activeTag = chip.dataset.tag;
+          renderTagFilter();
+          renderCards();
+        });
+      });
+    }
 
     function renderCards() {
       const filtered = allCards.filter(c => {
@@ -1535,7 +1722,10 @@
           (c.title || '').toLowerCase().includes(q) ||
           (c.note || '').toLowerCase().includes(q) ||
           lowerTags.some(t => t.includes(q));
-        return matchSearch;
+          
+        const matchTag = activeTag === 'All' || tags.includes(activeTag);
+          
+        return matchSearch && matchTag;
       });
 
       // Pinned cards float to the top
@@ -1644,7 +1834,8 @@
       const isPinned = !!c.pinned;
       const pinClass = isPinned ? 'pinned' : '';
       const pinTitle = isPinned ? 'Unpin card' : 'Pin card';
-      const cardClass = isPinned ? 'card pinned-card' : 'card';
+      const colorCls = c.color ? `note-${c.color}` : 'note-cream';
+      const cardClass = `${isPinned ? 'card pinned-card' : 'card'} ${colorCls}`;
 
       return `
     <article class="${cardClass}" data-id="${c.id}">
@@ -1689,6 +1880,7 @@
         .onSnapshot(snapshot => {
           allCards = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
           renderCards();
+          renderTagFilter();
           syncState('ok');
         }, err => {
           console.error('Firestore snapshot error', err);
@@ -1795,6 +1987,7 @@
       $('#inputPriority').value = 'none';
       $('#inputPinBtn').classList.remove('active');
       $('#inputPinBtn').dataset.pinned = 'false';
+      updateColorSelection('cream');
       $('#modalOverlay').classList.add('open');
       setTimeout(() => { $('#inputTitle').focus(); autoResizeNote(); }, 120);
     }
@@ -1813,6 +2006,7 @@
       const isPinned = !!card.pinned;
       $('#inputPinBtn').dataset.pinned = String(isPinned);
       $('#inputPinBtn').classList.toggle('active', isPinned);
+      updateColorSelection(card.color || 'cream');
       $('#modalOverlay').classList.add('open');
       setTimeout(() => { $('#inputTitle').focus(); autoResizeNote(); }, 120);
     }
@@ -1829,6 +2023,7 @@
       const tags = currentTags;
       const priority = $('#inputPriority').value || 'none';
       const pinned = $('#inputPinBtn').dataset.pinned === 'true';
+      const color = $('.color-option.selected')?.dataset.color || 'cream';
 
       if (!title && !note) { showToast('Please enter a title or note', 'error'); return; }
 
@@ -1837,7 +2032,7 @@
       saveBtn.textContent = 'Saving…';
 
       try {
-        const data = { title, note, tags, date, priority, pinned };
+        const data = { title, note, tags, date, priority, pinned, color };
         if (editingId) {
           await fsUpdateCard(editingId, data);
           showToast('Card updated! 📝');
@@ -1914,6 +2109,19 @@
       if (e.target === $('#tagInputContainer')) $('#tagInput').focus();
     };
 
+    /* ── Color picker logic ── */
+    function updateColorSelection(color) {
+      $$('.color-option').forEach(opt => {
+        opt.classList.toggle('selected', opt.dataset.color === color);
+      });
+    }
+
+    $$('.color-option').forEach(opt => {
+      opt.addEventListener('click', () => {
+        updateColorSelection(opt.dataset.color);
+      });
+    });
+
     /* ─────────────────────────────────── */
     /* Auth                                */
     /* ─────────────────────────────────── */
@@ -1925,6 +2133,11 @@
       // Update user chip
       $('#userAvatar').src = user.photoURL || '';
       $('#userName').textContent = user.displayName || user.email || 'User';
+
+      // Greeting
+      const banner = $('#greetingBanner');
+      banner.textContent = getGreeting(user.displayName);
+      banner.style.display = 'block';
 
       subscribeCards();
     }
