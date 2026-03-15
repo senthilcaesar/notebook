@@ -204,7 +204,27 @@
     .header-left {
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 16px;
+    }
+
+    .btn-sidebar-toggle {
+      background: none;
+      border: none;
+      color: #fff;
+      font-size: 1.2rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.1);
+      transition: all 0.2s;
+    }
+
+    .btn-sidebar-toggle:hover {
+      background: rgba(255, 255, 255, 0.2);
     }
 
     .header-left .logo-icon {
@@ -320,81 +340,128 @@
       background-position: 11px center;
     }
 
-    /* ── Sidebar & Layout ── */
-    .app-content {
-      display: flex;
-      gap: 24px;
-      padding: 0 24px 48px;
-      align-items: flex-start;
-    }
-
-    .sidebar {
-      width: 220px;
-      flex-shrink: 0;
-      position: sticky;
-      top: 24px;
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-    }
-
-    .sidebar-section h3 {
-      font-size: 0.75rem;
-      font-weight: 700;
-      color: rgba(255, 255, 255, 0.6);
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      margin-bottom: 12px;
-      padding-left: 8px;
-    }
-
-    .tag-list {
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-    }
-
-    .tag-item {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 10px 14px;
-      border-radius: 12px;
+    /* ── Greeting Banner ── */
+    .greeting-banner {
+      padding: 16px 24px 4px;
+      font-family: var(--font-hand);
+      font-size: 1.8rem;
       color: #fff;
-      font-size: 0.9rem;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+
+    /* ── Main Layout with Sidebar ── */
+    .app-main {
+      display: flex;
+      min-height: calc(100vh - 66px); /* header height */
+      position: relative;
+    }
+
+    /* ── Sidebar ── */
+    .sidebar {
+      width: 260px;
+      background: rgba(0, 0, 0, 0.15);
+      backdrop-filter: blur(12px);
+      border-right: 1px solid rgba(255, 255, 255, 0.08);
+      padding: 24px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      transition: transform 0.3s ease, width 0.3s ease, padding 0.3s ease, opacity 0.3s ease;
+      z-index: 10;
+      overflow-y: auto;
+    }
+
+    .sidebar.collapsed {
+      width: 0;
+      padding-left: 0;
+      padding-right: 0;
+      opacity: 0;
+      transform: translateX(-100%);
+      pointer-events: none;
+    }
+
+    .sidebar h3 {
+      font-family: var(--font-hand);
+      font-size: 1.5rem;
+      color: rgba(255, 255, 255, 0.9);
+      margin-bottom: 8px;
+    }
+
+    .sidebar-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .sidebar-item {
+      padding: 12px 14px;
+      border-radius: 8px;
+      color: rgba(255, 255, 255, 0.7);
+      font-size: 0.95rem;
       font-weight: 500;
       cursor: pointer;
       transition: all 0.2s;
-      background: rgba(255, 255, 255, 0.08);
-      border: 1px solid rgba(255, 255, 255, 0.1);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
     }
 
-    .tag-item:hover {
-      background: rgba(255, 255, 255, 0.15);
-      transform: translateX(4px);
-    }
-
-    .tag-item.active {
-      background: #fff;
-      color: var(--accent-desk);
-      font-weight: 600;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-      border-color: #fff;
-    }
-
-    body.dark .tag-item.active {
-      background: #7c83c8;
+    .sidebar-item:hover {
+      background: rgba(255, 255, 255, 0.1);
       color: #fff;
-      border-color: #7c83c8;
     }
 
-    .tag-item .tag-count {
-      margin-left: auto;
+    .sidebar-item.active {
+      background: rgba(255, 255, 255, 0.2);
+      color: #fff;
+      font-weight: 600;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    .sidebar-item .tag-count {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0, 0, 0, 0.2);
+      color: rgba(255, 255, 255, 0.6);
       font-size: 0.75rem;
-      opacity: 0.6;
+      min-width: 20px;
+      height: 20px;
+      padding: 0 6px;
+      border-radius: 10px;
     }
 
-    /* ── Greeting Banner ── */
+    .app-content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+    }
+
+    /* Update search wrap for sidebar layout */
+    .search-wrap {
+      padding: 24px 24px 0;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    @media (max-width: 768px) {
+      .sidebar {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        max-width: 280px;
+        box-shadow: 20px 0 40px rgba(0,0,0,0.3);
+      }
+      
+      .sidebar.collapsed {
+        transform: translateX(-100%);
+      }
+    }
 
     .search-input:focus {
       background-color: #fff;
@@ -462,13 +529,15 @@
       color: rgba(255, 255, 255, 0.6);
     }
 
-    /* ── CARDS GRID ── */
+    /* ───────────────────────────────────────────
+       CARDS GRID
+    ─────────────────────────────────────────── */
     .cards-grid {
+      padding: 22px 24px 48px;
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
       gap: 24px;
       align-items: start;
-      flex: 1;
     }
 
     .card {
@@ -1196,37 +1265,6 @@
         padding: 10px 14px 0;
       }
 
-      .app-content {
-        flex-direction: column;
-        padding: 0 14px 48px;
-        gap: 16px;
-      }
-
-      .sidebar {
-        width: 100%;
-        position: static;
-      }
-
-      .tag-list {
-        flex-direction: row;
-        overflow-x: auto;
-        padding-bottom: 4px;
-        scrollbar-width: none;
-      }
-
-      .tag-list::-webkit-scrollbar {
-        display: none;
-      }
-
-      .tag-item {
-        padding: 6px 14px;
-        border-radius: 20px;
-      }
-
-      .tag-item:hover {
-        transform: none;
-      }
-
       .modal {
         padding: 22px 16px;
         max-height: 95vh;
@@ -1516,6 +1554,9 @@
     <!-- HEADER -->
     <header>
       <div class="header-left">
+        <button class="btn-sidebar-toggle" id="sidebarToggle" title="Toggle Sidebar" aria-label="Toggle Sidebar">
+          <i class="fa fa-bars"></i>
+        </button>
         <span class="logo-icon">📓</span>
         <h1>My Notebook</h1>
       </div>
@@ -1541,30 +1582,33 @@
       </div>
     </header>
 
-    <!-- GREETING -->
-    <div class="greeting-banner" id="greetingBanner" style="display:none;"></div>
-
-    <!-- SEARCH -->
-    <div class="search-wrap">
-      <input type="search" id="searchInput" class="search-input" placeholder="Search cards…"
-        aria-label="Search flashcards" />
-      <span class="card-count" id="cardCount"></span>
-    </div>
-
-    <!-- TAG FILTER & CARDS -->
-    <div class="app-content">
-      <aside class="sidebar" id="sidebar">
-        <div class="sidebar-section">
-          <h3>Collection</h3>
-          <div class="tag-list" id="tagList">
-            <!-- Populated by JS -->
-          </div>
+    <main class="app-main">
+      <!-- SIDEBAR -->
+      <aside class="sidebar" id="tagSidebar">
+        <div class="sidebar-header">
+          <h3>🏷️ Tags</h3>
         </div>
+        <ul class="sidebar-list" id="sidebarTagList">
+          <!-- Populated by JS -->
+        </ul>
       </aside>
 
-      <!-- CARDS -->
-      <main class="cards-grid" id="cardsGrid" aria-label="Flashcards"></main>
-    </div>
+      <!-- MAIN CONTENT AREA -->
+      <div class="app-content">
+        <!-- GREETING -->
+        <div class="greeting-banner" id="greetingBanner" style="display:none;"></div>
+
+        <!-- SEARCH -->
+        <div class="search-wrap">
+          <input type="search" id="searchInput" class="search-input" placeholder="Search cards…"
+            aria-label="Search flashcards" />
+          <span class="card-count" id="cardCount"></span>
+        </div>
+
+        <!-- CARDS -->
+        <div class="cards-grid" id="cardsGrid" aria-label="Flashcards"></div>
+      </div>
+    </main>
 
   </div><!-- /appShell -->
 
@@ -1745,37 +1789,48 @@
     }
 
     function getUniqueTags() {
-      const tagSet = new Set(['All']);
+      const tagMap = new Map();
+      tagMap.set('All', allCards.length);
+      
       allCards.forEach(c => {
         const tags = c.tags || (c.category ? [c.category] : []);
-        tags.forEach(t => tagSet.add(t));
+        tags.forEach(t => {
+          tagMap.set(t, (tagMap.get(t) || 0) + 1);
+        });
       });
-      return [...tagSet].sort((a,b) => a === 'All' ? -1 : b === 'All' ? 1 : a.localeCompare(b));
+      
+      const sortedTags = [...tagMap.keys()].sort((a,b) => {
+        if (a === 'All') return -1;
+        if (b === 'All') return 1;
+        return a.localeCompare(b);
+      });
+      
+      return sortedTags.map(t => ({ name: t, count: tagMap.get(t) }));
     }
 
     function renderTagFilter() {
       const tags = getUniqueTags();
-      const container = $('#tagList');
+      const container = $('#sidebarTagList');
+      if (!container) return;
       
       container.innerHTML = tags.map(t => {
-        const isActive = t === activeTag;
-        const count = t === 'All' 
-          ? allCards.length 
-          : allCards.filter(c => (c.tags || (c.category ? [c.category] : [])).includes(t)).length;
-          
+        const isActive = t.name === activeTag;
         return `
-          <div class="tag-item ${isActive ? 'active' : ''}" data-tag="${t}">
-            <i class="fa ${t === 'All' ? 'fa-layer-group' : 'fa-tag'}"></i>
-            <span>${t}</span>
-            <span class="tag-count">${count}</span>
-          </div>`;
+          <li class="sidebar-item ${isActive ? 'active' : ''}" data-tag="${t.name}">
+            <span>${escHtml(t.name)}</span>
+            <span class="tag-count">${t.count}</span>
+          </li>`;
       }).join('');
       
-      $$('.tag-item').forEach(item => {
+      $$('.sidebar-item').forEach(item => {
         item.addEventListener('click', () => {
           activeTag = item.dataset.tag;
           renderTagFilter();
           renderCards();
+          // On mobile, collapse sidebar after selection
+          if (window.innerWidth <= 768) {
+            toggleSidebar(false);
+          }
         });
       });
     }
@@ -2281,6 +2336,27 @@
     darkToggle.addEventListener('click', () => {
       applyTheme(!document.body.classList.contains('dark'));
     });
+
+    /* ── Sidebar Toggle Logic ── */
+    const sidebar = $('#tagSidebar');
+    const sidebarToggle = $('#sidebarToggle');
+
+    function toggleSidebar(force) {
+      const isCollapsed = force !== undefined ? !force : !sidebar.classList.contains('collapsed');
+      sidebar.classList.toggle('collapsed', isCollapsed);
+      const icon = sidebarToggle.querySelector('i');
+      if (icon) {
+        icon.className = isCollapsed ? 'fa fa-bars' : 'fa fa-chevron-left';
+      }
+      localStorage.setItem('nb_sidebar_collapsed', isCollapsed ? '1' : '0');
+    }
+
+    sidebarToggle.addEventListener('click', () => toggleSidebar());
+
+    // Restore sidebar state
+    if (localStorage.getItem('nb_sidebar_collapsed') === '1') {
+      toggleSidebar(true);
+    }
   </script>
 </body>
 
