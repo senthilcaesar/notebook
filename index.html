@@ -323,6 +323,7 @@
       flex-wrap: wrap;
       padding: 16px 24px 0;
       gap: 16px;
+      position: relative;
     }
 
     /* ── Search & count ── */
@@ -330,10 +331,10 @@
       display: flex;
       align-items: center;
       gap: 10px;
-      position: absolute; /* Position absolutely to center relative to container */
+      position: absolute;
       left: 50%;
       transform: translateX(-50%);
-      min-width: 500px; /* Increased to 500px from 300px */
+      min-width: 500px;
     }
 
     .search-input {
@@ -400,7 +401,7 @@
     .sidebar h3 {
       font-family: var(--font-hand);
       font-size: 1.5rem;
-      color: rgba(255, 255, 255, 0.9);
+      color: var(--pencil);
       margin-bottom: 8px;
     }
 
@@ -414,7 +415,7 @@
     .sidebar-item {
       padding: 12px 14px;
       border-radius: 8px;
-      color: rgba(255, 255, 255, 0.7);
+      color: var(--pencil-light);
       font-size: 0.95rem;
       font-weight: 500;
       cursor: pointer;
@@ -440,8 +441,8 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      background: rgba(0, 0, 0, 0.2);
-      color: rgba(255, 255, 255, 0.6);
+      background: rgba(0, 0, 0, 0.08);
+      color: var(--pencil-light);
       font-size: 0.75rem;
       min-width: 20px;
       height: 20px;
@@ -474,6 +475,19 @@
       
       .sidebar.collapsed {
         transform: translateX(-100%);
+      }
+
+      .top-bar-wrap {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        padding-bottom: 16px;
+      }
+
+      .search-wrap {
+        position: static;
+        transform: none;
+        min-width: 100%;
       }
     }
 
@@ -1414,6 +1428,25 @@
 
     body.dark .search-input:focus {
       background: rgba(124, 131, 200, 0.18);
+    }
+
+    /* Dark sidebar overrides */
+    body.dark .sidebar h3 {
+      color: rgba(255, 255, 255, 0.9);
+    }
+
+    body.dark .sidebar-item {
+      color: rgba(255, 255, 255, 0.7);
+    }
+
+    body.dark .sidebar-item:hover,
+    body.dark .sidebar-item.active {
+      color: #fff;
+    }
+
+    body.dark .sidebar-item .tag-count {
+      background: rgba(0, 0, 0, 0.2);
+      color: rgba(255, 255, 255, 0.6);
     }
 
     /* Dark mode toggle button */
