@@ -333,12 +333,12 @@
       position: absolute; /* Position absolutely to center relative to container */
       left: 50%;
       transform: translateX(-50%);
-      min-width: 300px; /* Increased slightly to accommodate padding */
+      min-width: 500px; /* Increased to 500px from 300px */
     }
 
     .search-input {
       flex: 1;
-      max-width: 450px; /* Increased max-width */
+      max-width: 600px; /* Increased to 600px from 450px */
       padding: 12px 20px 12px 42px; /* Increased padding */
       border-radius: 24px;
       border: none;
@@ -351,6 +351,11 @@
       background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='15' height='15' viewBox='0 0 24 24' fill='none' stroke='%236b5e4e' stroke-width='2'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cline x1='21' y1='21' x2='16.65' y2='16.65'/%3E%3C/svg%3E");
       background-repeat: no-repeat;
       background-position: 16px center; /* Adjusted icon position for new padding */
+    }
+
+    /* Change cursor to pointer for the native search clear button */
+    input[type="search"]::-webkit-search-cancel-button {
+      cursor: pointer;
     }
 
     /* ── Greeting Banner ── */
