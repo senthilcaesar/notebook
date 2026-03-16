@@ -315,12 +315,24 @@
       color: #fff;
     }
 
+    /* ── Top Bar ── */
+    .top-bar-wrap {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      padding: 16px 24px 0;
+      gap: 16px;
+    }
+
     /* ── Search & count ── */
     .search-wrap {
-      padding: 14px 24px 0;
       display: flex;
       align-items: center;
       gap: 10px;
+      flex: 1;
+      justify-content: flex-end;
+      min-width: 200px;
     }
 
     .search-input {
@@ -342,7 +354,6 @@
 
     /* ── Greeting Banner ── */
     .greeting-banner {
-      padding: 16px 24px 4px;
       font-family: var(--font-hand);
       font-size: 1.8rem;
       color: #fff;
@@ -439,12 +450,9 @@
       overflow-x: hidden;
     }
 
-    /* Update search wrap for sidebar layout */
-    .search-wrap {
+    /* Update top bar wrap for sidebar layout */
+    .top-bar-wrap {
       padding: 24px 24px 0;
-      display: flex;
-      align-items: center;
-      gap: 10px;
     }
 
     @media (max-width: 768px) {
@@ -1595,14 +1603,17 @@
 
       <!-- MAIN CONTENT AREA -->
       <div class="app-content">
-        <!-- GREETING -->
-        <div class="greeting-banner" id="greetingBanner" style="display:none;"></div>
+        <!-- TOP BAR -->
+        <div class="top-bar-wrap">
+          <!-- GREETING -->
+          <div class="greeting-banner" id="greetingBanner" style="display:none;"></div>
 
-        <!-- SEARCH -->
-        <div class="search-wrap">
-          <input type="search" id="searchInput" class="search-input" placeholder="Search cards…"
-            aria-label="Search flashcards" />
-          <span class="card-count" id="cardCount"></span>
+          <!-- SEARCH -->
+          <div class="search-wrap">
+            <input type="search" id="searchInput" class="search-input" placeholder="Search cards…"
+              aria-label="Search flashcards" />
+            <span class="card-count" id="cardCount"></span>
+          </div>
         </div>
 
         <!-- CARDS -->
