@@ -79,10 +79,10 @@ const firebaseConfig = {
 
 ---
 
-## Step 6 — Paste Config into flashcards.html
+## Step 6 — Confirm Config in `src/lib/firebase.js`
 
-1. Open `flashcards.html` in any text editor
-2. Find this block near the top of the `<script>` section:
+1. Open `src/lib/firebase.js`
+2. Find the Firebase config block:
 
 ```javascript
 const firebaseConfig = {
@@ -95,7 +95,7 @@ const firebaseConfig = {
 };
 ```
 
-3. Replace every `"YOUR_..."` value with the real values from Step 5
+3. Replace the config values with the real values from Step 5
 4. **Save the file**
 
 ---
@@ -107,18 +107,19 @@ const firebaseConfig = {
 > - **Served over HTTP/HTTPS** (not just opened as a `file://` path), OR
 > - You add `localhost` as an authorized domain in Firebase Console → Authentication → Settings → Authorized domains
 
-### Quickest local option (no install needed):
+### Local development with Vite:
 ```bash
-# In your terminal, from the folder containing flashcards.html:
-npx serve .
+npm install
+npm run dev
 ```
-Then open **http://localhost:3000/flashcards.html**
+Then open the local Vite URL shown in the terminal.
 
-### Or use Python's built-in server:
+### Production preview after a build:
 ```bash
-python3 -m http.server 8080
+npm run build
+npm run preview
 ```
-Then open **http://localhost:8080/flashcards.html**
+Then open the local preview URL shown in the terminal.
 
 ---
 

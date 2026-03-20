@@ -1,0 +1,49 @@
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-ui);
+  color: var(--color-text);
+  background:
+    var(--desk-grid),
+    linear-gradient(180deg, var(--color-bg), var(--color-bg-strong));
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+[data-theme='dark'] body {
+  background:
+    radial-gradient(circle at 18% 16%, rgba(102, 217, 239, 0.1), transparent 18%),
+    radial-gradient(circle at 82% 18%, rgba(249, 38, 114, 0.08), transparent 24%),
+    radial-gradient(circle at 68% 76%, rgba(166, 226, 46, 0.08), transparent 20%),
+    radial-gradient(circle at 24% 72%, rgba(253, 151, 31, 0.08), transparent 18%),
+    linear-gradient(180deg, var(--color-bg), var(--color-bg-strong));
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+img {
+  max-width: 100%;
+  display: block;
+}
+
+a {
+  color: inherit;
+}
