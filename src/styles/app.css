@@ -1279,12 +1279,14 @@
   }
 
   .app-header.is-condensed .sync-indicator,
-  .app-header.is-condensed .user-chip {
+  .app-header.is-condensed .user-chip,
+  .app-header.is-condensed .button.button-primary,
+  .app-header.is-condensed .header-tech-button {
     display: none;
   }
 
   .app-header.is-condensed .header-actions {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .user-chip {
