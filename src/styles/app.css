@@ -1363,6 +1363,30 @@
     line-height: 28px;
   }
 
+  .flashcard::before {
+    background:
+      linear-gradient(90deg, rgba(210, 63, 63, 0.14) 0, rgba(210, 63, 63, 0.14) 2px, transparent 2px, transparent 54px),
+      repeating-linear-gradient(
+        to bottom,
+        transparent 0,
+        transparent 26px,
+        rgba(70, 122, 177, 0.16) 26px,
+        rgba(70, 122, 177, 0.16) 28px
+      );
+  }
+
+  [data-theme='dark'] .flashcard::before {
+    background:
+      linear-gradient(90deg, rgba(249, 38, 114, 0.16) 0, rgba(249, 38, 114, 0.16) 2px, transparent 2px, transparent 54px),
+      repeating-linear-gradient(
+        to bottom,
+        transparent 0,
+        transparent 26px,
+        rgba(102, 217, 239, 0.14) 26px,
+        rgba(102, 217, 239, 0.14) 28px
+      );
+  }
+
   .flashcard-footer {
     grid-template-columns: repeat(4, minmax(2.55rem, 1fr));
     margin-left: -3.55rem;
