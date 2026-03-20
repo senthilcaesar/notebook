@@ -29,9 +29,10 @@ export function Header({
   onToggleTheme,
   onLogout,
   greeting,
+  isCondensed,
 }) {
   return (
-    <header className="app-header">
+    <header className={`app-header ${isCondensed ? 'is-condensed' : ''}`}>
       <div className="brand-block">
         <div className="brand-mark">
           <BookOpenText size={22} />

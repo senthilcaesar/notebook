@@ -35,11 +35,28 @@ export default function App() {
   const [cardToDelete, setCardToDelete] = useState(null);
   const [authError, setAuthError] = useState('');
   const [isTechStackOpen, setIsTechStackOpen] = useState(false);
+  const [isHeaderCondensed, setIsHeaderCondensed] = useState(false);
   const [toasts, setToasts] = useState([]);
 
   useEffect(() => {
     document.documentElement.dataset.theme = theme;
   }, [theme]);
+
+  useEffect(() => {
+    function updateHeaderState() {
+      const isMobile = window.innerWidth <= 720;
+      setIsHeaderCondensed(isMobile && window.scrollY > 48);
+    }
+
+    updateHeaderState();
+    window.addEventListener('scroll', updateHeaderState, { passive: true });
+    window.addEventListener('resize', updateHeaderState);
+
+    return () => {
+      window.removeEventListener('scroll', updateHeaderState);
+      window.removeEventListener('resize', updateHeaderState);
+    };
+  }, []);
 
   function pushToast(message, type = 'info') {
     const id = window.crypto?.randomUUID?.() || `${Date.now()}-${Math.random()}`;
@@ -191,6 +208,7 @@ export default function App() {
           onToggleTheme={() => setTheme((current) => (current === 'dark' ? 'light' : 'dark'))}
           onLogout={handleLogout}
           greeting={getGreeting(user.displayName)}
+          isCondensed={isHeaderCondensed}
         />
 
         <div className={`workspace ${sidebarCollapsed ? 'is-sidebar-collapsed' : ''}`}>
