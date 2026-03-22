@@ -746,29 +746,6 @@
     inset 0 1px 2px rgba(255, 255, 255, 0.08);
 }
 
-[data-theme='dark'] .flashcard.note-cream {
-  background: linear-gradient(180deg, rgba(24, 32, 63, 0.96), rgba(18, 24, 49, 0.94));
-}
-
-[data-theme='dark'] .flashcard.note-yellow {
-  background: linear-gradient(180deg, rgba(48, 40, 90, 0.96), rgba(29, 24, 60, 0.94));
-}
-
-[data-theme='dark'] .flashcard.note-pink {
-  background: linear-gradient(180deg, rgba(52, 31, 77, 0.96), rgba(33, 20, 52, 0.94));
-}
-
-[data-theme='dark'] .flashcard.note-blue {
-  background: linear-gradient(180deg, rgba(16, 42, 82, 0.96), rgba(10, 27, 58, 0.94));
-}
-
-[data-theme='dark'] .flashcard.note-green {
-  background: linear-gradient(180deg, rgba(18, 46, 57, 0.96), rgba(11, 29, 37, 0.94));
-}
-
-[data-theme='dark'] .flashcard.note-lavender {
-  background: linear-gradient(180deg, rgba(35, 27, 84, 0.96), rgba(20, 16, 58, 0.94));
-}
 
 [data-theme='dark'] .flashcard-date {
   color: #b7b7ad;
@@ -847,7 +824,7 @@
 }
 
 .modal-card {
-  max-height: min(90vh, 52rem);
+  max-height: min(90dvh, 52rem);
   display: grid;
   grid-template-rows: auto minmax(0, 1fr) auto;
   overflow: hidden;
@@ -1006,6 +983,8 @@
   margin: var(--space-5) 0;
   min-height: 0;
   overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
   padding-right: 0.35rem;
 }
 
@@ -1399,6 +1378,7 @@
   .tech-stack-card {
     width: min(100%, 100%);
     border-radius: var(--radius-md);
+    max-height: calc(100dvh - 1.7rem);
   }
 
   .modal-backdrop {

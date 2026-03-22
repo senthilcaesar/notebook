@@ -41,10 +41,14 @@ export function CardModal({ open, card, onClose, onSubmit }) {
 
   useEffect(() => {
     if (!open) return undefined;
-
     const timeoutId = window.setTimeout(() => {
       titleRef.current?.focus();
     }, 80);
+    return () => window.clearTimeout(timeoutId);
+  }, [open]);
+
+  useEffect(() => {
+    if (!open) return undefined;
 
     const handleKeyDown = (event) => {
       if (event.key === 'Escape') {
@@ -58,10 +62,7 @@ export function CardModal({ open, card, onClose, onSubmit }) {
     };
 
     window.addEventListener('keydown', handleKeyDown);
-    return () => {
-      window.clearTimeout(timeoutId);
-      window.removeEventListener('keydown', handleKeyDown);
-    };
+    return () => window.removeEventListener('keydown', handleKeyDown);
   }, [form, onClose, onSubmit, open]);
 
   function commitTag() {
