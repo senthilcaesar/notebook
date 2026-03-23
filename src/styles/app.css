@@ -526,7 +526,8 @@
 .flashcard-title {
   margin: 0;
   font-family: var(--font-display);
-  font-size: clamp(1.5rem, 2vw, 1.95rem);
+  font-size: clamp(1.2rem, 1.8vw, 1.55rem);
+  font-weight: 400;
   line-height: 1.02;
   color: #3e2b17;
   padding-top: 0.15rem;
@@ -1320,7 +1321,7 @@
   }
 
   .flashcard-title {
-    font-size: clamp(1.35rem, 7vw, 1.75rem);
+    font-size: clamp(1.15rem, 6vw, 1.45rem);
   }
 
   .flashcard-header {
