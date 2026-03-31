@@ -9,7 +9,7 @@ function getInitialForm(card) {
     return {
       title: '',
       note: '',
-      attachments: [],
+      attachmentsText: '',
       date: getTodayDateString(),
       tags: ['General'],
       priority: 'none',
@@ -21,7 +21,7 @@ function getInitialForm(card) {
   return {
     title: card.title || '',
     note: card.note || '',
-    attachments: Array.isArray(card.attachments) ? card.attachments : [],
+    attachmentsText: Array.isArray(card.attachments) ? card.attachments.join('\n') : '',
     date: card.date || getTodayDateString(),
     tags: card.tags?.length ? card.tags : ['General'],
     priority: card.priority || 'none',
@@ -34,6 +34,15 @@ export function CardModal({ open, card, onClose, onSubmit }) {
   const [form, setForm] = useState(getInitialForm(card));
   const [tagDraft, setTagDraft] = useState('');
   const titleRef = useRef(null);
+
+  function handleSave() {
+    const payload = {
+      ...form,
+      attachments: parseAttachmentLines(form.attachmentsText),
+    };
+    delete payload.attachmentsText;
+    onSubmit(payload);
+  }
 
   useEffect(() => {
     setForm(getInitialForm(card));
@@ -57,7 +66,7 @@ export function CardModal({ open, card, onClose, onSubmit }) {
 
       if ((event.metaKey || event.ctrlKey) && event.key === 'Enter') {
         event.preventDefault();
-        onSubmit(form);
+        handleSave();
       }
     };
 
@@ -92,7 +101,11 @@ export function CardModal({ open, card, onClose, onSubmit }) {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          onClick={onClose}
+          onPointerDown={(event) => {
+            if (event.target === event.currentTarget) {
+              onClose();
+            }
+          }}
         >
           <motion.section
             className="modal-card"
@@ -137,11 +150,11 @@ export function CardModal({ open, card, onClose, onSubmit }) {
               <label className="field">
                 <span>Attachments / links</span>
                 <textarea
-                  value={(form.attachments || []).join('\n')}
+                  value={form.attachmentsText}
                   onChange={(event) =>
                     setForm((current) => ({
                       ...current,
-                      attachments: parseAttachmentLines(event.target.value),
+                      attachmentsText: event.target.value,
                     }))
                   }
                   placeholder={'Add one URL per line\nhttps://example.com\nhttps://github.com/...'}
@@ -243,7 +256,7 @@ export function CardModal({ open, card, onClose, onSubmit }) {
               <button type="button" className="button button-secondary" onClick={onClose}>
                 Cancel
               </button>
-              <button type="button" className="button button-primary" onClick={() => onSubmit(form)}>
+              <button type="button" className="button button-primary" onClick={handleSave}>
                 Save Card
               </button>
             </div>

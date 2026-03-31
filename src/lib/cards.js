@@ -84,11 +84,8 @@ export function buildCopyText(card) {
 }
 
 export function parseAttachmentLines(value) {
-  if (!value) return [];
-  return String(value)
-    .split('\n')
-    .map((line) => line.trim())
-    .filter(Boolean);
+  if (value === undefined || value === null) return [];
+  return String(value).split('\n');
 }
 
 function applyInlineFormatting(text) {
