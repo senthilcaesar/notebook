@@ -128,17 +128,20 @@ export default function App() {
       return;
     }
 
+    const isEditing = Boolean(editingCard);
+    const idToUpdate = editingCard?.id;
+
+    setIsModalOpen(false);
+    setEditingCard(null);
+
     try {
-      if (editingCard) {
-        await updateCard(editingCard.id, formData);
+      if (isEditing) {
+        await updateCard(idToUpdate, formData);
         pushToast('Card updated', 'success');
       } else {
         await addCard(formData);
         pushToast('Card saved', 'success');
       }
-
-      setIsModalOpen(false);
-      setEditingCard(null);
     } catch (error) {
       console.error('Save failed:', error);
       pushToast('Save failed. Please try again.', 'error');
@@ -148,10 +151,12 @@ export default function App() {
   async function handleDeleteConfirmed() {
     if (!cardToDelete) return;
 
+    const idToDelete = cardToDelete.id;
+    setCardToDelete(null);
+
     try {
-      await deleteCard(cardToDelete.id);
+      await deleteCard(idToDelete);
       pushToast('Card deleted', 'success');
-      setCardToDelete(null);
     } catch (error) {
       console.error('Delete failed:', error);
       pushToast('Delete failed. Please try again.', 'error');
