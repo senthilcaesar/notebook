@@ -767,6 +767,16 @@
   box-shadow: 0 0 16px rgba(166, 226, 46, 0.08);
 }
 
+[data-theme='dark'] .button-primary {
+  background: var(--color-accent);
+  color: var(--color-bg-strong);
+  box-shadow: 0 4px 12px rgba(166, 226, 46, 0.2);
+}
+
+[data-theme='dark'] .button-primary:hover {
+  box-shadow: 0 6px 16px rgba(166, 226, 46, 0.3);
+}
+
 .login-shell,
 .loading-screen {
   min-height: 100vh;
