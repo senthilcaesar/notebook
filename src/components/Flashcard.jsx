@@ -23,7 +23,7 @@ export function Flashcard({ card, onEdit, onDelete, onCopy, onTogglePin }) {
   useEffect(() => {
     const element = noteRef.current;
     if (!element) return;
-    setCanExpand(element.scrollHeight > 184);
+    setCanExpand(element.scrollHeight > 186);
   }, [card.attachments, card.note]);
 
   const richBlocks = parseRichNote(card.note);
@@ -96,7 +96,7 @@ export function Flashcard({ card, onEdit, onDelete, onCopy, onTogglePin }) {
           <div
             ref={noteRef}
             className={`flashcard-note ${expanded ? 'is-expanded' : ''}`}
-            style={canExpand && !expanded ? { maxHeight: '11.5rem' } : undefined}
+            style={canExpand && !expanded ? { maxHeight: '186px' } : undefined}
           >
             {richBlocks.length > 0 || card.attachments?.length ? (
               <div className="note-rich-content">

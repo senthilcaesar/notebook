@@ -11,10 +11,7 @@ export function Sidebar({ tags, activeTag, onSelect, collapsed, onToggle }) {
       <AnimatePresence initial={false}>
         {!collapsed ? (
           <motion.div
-            key="sidebar-content"
-            initial={{ opacity: 0, x: -12 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -12 }}
+            transition={{ duration: 0.34, ease: [0.22, 1, 0.36, 1] }}
             className="sidebar-panel"
           >
             <div className="sidebar-header">

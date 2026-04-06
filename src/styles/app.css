@@ -281,6 +281,8 @@
 
 .sidebar {
   position: relative;
+  width: 18rem;
+  transition: width 340ms var(--motion-smooth);
 }
 
 .sidebar-toggle {
@@ -310,14 +312,16 @@
 }
 
 .sidebar-panel {
-  width: 18rem;
+  width: 100%;
+  min-width: 18rem;
   padding: 1.35rem 1rem 1rem;
   border-radius: var(--radius-lg);
   backdrop-filter: blur(18px);
+  overflow: hidden;
 }
 
 .sidebar.is-collapsed {
-  width: 1.6rem;
+  width: 1.66rem;
 }
 
 .sidebar-header {
@@ -389,6 +393,7 @@
 }
 
 .flashcard {
+  --rule-height: 31px;
   position: relative;
   min-height: 18rem;
   height: fit-content;
@@ -408,9 +413,9 @@
     repeating-linear-gradient(
       to bottom,
       transparent 0,
-      transparent 29px,
-      rgba(70, 122, 177, 0.16) 29px,
-      rgba(70, 122, 177, 0.16) 31px
+      transparent calc(var(--rule-height) - 2px),
+      rgba(70, 122, 177, 0.16) calc(var(--rule-height) - 2px),
+      rgba(70, 122, 177, 0.16) var(--rule-height)
     );
   pointer-events: none;
 }
@@ -462,12 +467,12 @@
 .flashcard-inner {
   position: relative;
   z-index: 1;
-  display: grid;
-  grid-template-rows: auto auto minmax(0, 1fr) auto;
-  gap: 0.85rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
   height: 100%;
   min-width: 0;
-  padding: 1.25rem 1.15rem 0 4.15rem;
+  padding: 0 1.15rem 0 4.15rem;
 }
 
 .flashcard-header,
@@ -478,10 +483,12 @@
 }
 
 .flashcard-header {
+  flex: 0 0 auto;
   flex-direction: row;
   justify-content: space-between;
   align-items: flex-start;
   gap: 0.9rem;
+  min-height: var(--rule-height);
 }
 
 .flashcard-footer {
@@ -511,6 +518,8 @@
 
 .flashcard-badges {
   justify-content: flex-end;
+  height: var(--rule-height);
+  overflow: hidden;
 }
 
 .flashcard-date {
@@ -518,9 +527,8 @@
   font-family: var(--font-display);
   font-size: 1rem;
   font-weight: 700;
-  line-height: 1.2;
+  line-height: var(--rule-height);
   max-width: 6.5rem;
-  padding-top: 0.15rem;
 }
 
 .flashcard-title {
@@ -528,22 +536,23 @@
   font-family: var(--font-display);
   font-size: clamp(1.2rem, 1.8vw, 1.55rem);
   font-weight: 400;
-  line-height: 1.02;
+  line-height: var(--rule-height);
   color: #3e2b17;
-  padding-top: 0.15rem;
+  padding: 0;
+  min-height: var(--rule-height);
 }
 
 .flashcard-body {
+  flex: 1 1 auto;
   min-height: 0;
   min-width: 0;
-  display: grid;
-  align-content: start;
+  display: flex;
+  flex-direction: column;
   padding-bottom: 0.25rem;
 }
 
 .flashcard-note {
-  margin-top: 0.35rem;
-  line-height: 31px;
+  line-height: var(--rule-height);
   overflow: hidden;
   font-size: 0.98rem;
   color: #665544;
@@ -551,30 +560,27 @@
 
 .note-rich-content {
   display: block;
-  padding-top: 1px;
 }
 
 .note-paragraph,
 .note-heading,
 .note-list {
   margin: 0;
+  padding: 0;
 }
 
 .note-heading {
   font-size: 0.98rem;
-  line-height: 31px;
-  margin: 0;
+  line-height: var(--rule-height);
 }
 
 .note-list {
   padding-left: 1.15rem;
-  display: block;
-  margin: 0;
+  list-style-type: disc;
 }
 
 .note-list li {
-  margin: 0;
-  line-height: 31px;
+  line-height: var(--rule-height);
 }
 
 .note-inline-link,
@@ -597,10 +603,10 @@
 }
 
 .note-attachments {
-  display: grid;
-  gap: 0.45rem;
-  padding-top: 0.55rem;
-  margin-top: 0.35rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  margin-top: 0;
   border-top: 1px dashed rgba(109, 84, 56, 0.16);
 }
 
@@ -610,7 +616,8 @@
   gap: 0.45rem;
   min-width: 0;
   font-size: 0.88rem;
-  line-height: 1.5;
+  height: var(--rule-height);
+  line-height: var(--rule-height);
 }
 
 .attachment-link span {
@@ -725,9 +732,9 @@
     repeating-linear-gradient(
       to bottom,
       transparent 0,
-      transparent 29px,
-      rgba(102, 217, 239, 0.14) 29px,
-      rgba(102, 217, 239, 0.14) 31px
+      transparent calc(var(--rule-height) - 2px),
+      rgba(102, 217, 239, 0.14) calc(var(--rule-height) - 2px),
+      rgba(102, 217, 239, 0.14) var(--rule-height)
     );
 }
 
@@ -1120,8 +1127,14 @@
     padding: var(--space-5);
   }
 
+  .sidebar {
+    width: 100%;
+    transition: none;
+  }
+
   .sidebar-panel {
     width: 100%;
+    min-width: 0;
   }
 
   .sidebar-toggle {

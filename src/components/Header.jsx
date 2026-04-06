@@ -33,7 +33,18 @@ export function Header({
 }) {
   return (
     <header className={`app-header ${isCondensed ? 'is-condensed' : ''}`}>
-      <div className="brand-block">
+      <div
+        className="brand-block"
+        onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+        style={{ cursor: 'pointer' }}
+        role="button"
+        tabIndex={0}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          }
+        }}
+      >
         <div className="brand-mark">
           <BookOpenText size={22} />
         </div>
