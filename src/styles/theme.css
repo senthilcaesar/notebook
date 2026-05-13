@@ -27,28 +27,30 @@
 }
 
 [data-theme='dark'] {
-  --color-bg: #1f201c;
-  --color-bg-strong: #171814;
-  --color-surface: rgba(39, 40, 34, 0.86);
-  --color-surface-strong: rgba(52, 53, 46, 0.96);
-  --color-panel: rgba(166, 226, 46, 0.08);
-  --color-border: rgba(248, 248, 242, 0.1);
-  --color-border-strong: rgba(248, 248, 242, 0.18);
-  --color-text: #f8f8f2;
-  --color-text-muted: #b7b7ad;
-  --color-accent: #a6e22e;
-  --color-accent-strong: #66d9ef;
-  --color-accent-soft: rgba(166, 226, 46, 0.14);
-  --color-danger: #f92672;
-  --color-success: #a6e22e;
-  --color-warning: #fd971f;
-  --color-syncing: #66d9ef;
-  --color-error: #f92672;
+  /* Catppuccin Frappé — official hex values from catppuccin.com/palette */
+  --color-bg: #303446;           /* Base */
+  --color-bg-strong: #292c3c;    /* Mantle */
+  --color-surface: rgba(65, 69, 89, 0.86);   /* Surface 0 */
+  --color-surface-strong: rgba(81, 87, 109, 0.96); /* Surface 1 */
+  --color-panel: rgba(202, 158, 230, 0.08);  /* Mauve tint */
+  --color-border: rgba(186, 187, 241, 0.14); /* Lavender tint */
+  --color-border-strong: rgba(186, 187, 241, 0.24); /* Lavender tint strong */
+  --color-text: #c6d0f5;         /* Text */
+  --color-text-muted: #b5bfe2;   /* Subtext 1 */
+  --color-accent: #ca9ee6;       /* Mauve */
+  --color-accent-strong: #babbf1; /* Lavender */
+  --color-accent-soft: rgba(202, 158, 230, 0.14); /* Mauve soft */
+  --color-danger: #e78284;       /* Red */
+  --color-success: #a6d189;      /* Green */
+  --color-warning: #e5c890;      /* Yellow */
+  --color-syncing: #81c8be;      /* Teal */
+  --color-error: #e78284;        /* Red */
 
-  --note-cream: #32312b;
-  --note-yellow: #463d21;
-  --note-pink: #442a35;
-  --note-blue: #233544;
-  --note-green: #253a29;
-  --note-lavender: #312642;
+  /* Note card colors — Frappé Surface 0 (#414559) tinted per hue */
+  --note-cream: #3d3f52;
+  --note-yellow: #463e37;
+  --note-pink: #4a3a4d;
+  --note-blue: #323a55;
+  --note-green: #333f45;
+  --note-lavender: #3e3857;
 }
