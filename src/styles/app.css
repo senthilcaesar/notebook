@@ -691,18 +691,19 @@
 }
 
 [data-theme='dark'] .flashcard-title {
-  color: #c6d0f5; /* Frappé Text */
+  color: #f8f8f2;
 }
 
 [data-theme='dark'] .flashcard-note {
-  color: #b5bfe2; /* Frappé Subtext 1 */
+  color: #d7d7cf;
+}
 
 [data-theme='dark'] .note-inline-code {
-  background: rgba(198, 208, 245, 0.1); /* Frappé Text tint */
+  background: rgba(248, 248, 242, 0.08);
 }
 
 [data-theme='dark'] .flashcard-footer {
-  background: rgba(41, 44, 60, 0.36); /* Frappé Mantle tint */
+  background: rgba(20, 21, 18, 0.28);
 }
 
 [data-theme='dark'] .app-header,
@@ -714,28 +715,26 @@
 [data-theme='dark'] .empty-board {
   box-shadow:
     0 18px 40px rgba(0, 0, 0, 0.28),
-    0 0 0 1px rgba(186, 187, 241, 0.06), /* Frappé Lavender tint */
+    0 0 0 1px rgba(248, 248, 242, 0.04),
     inset 0 1px 0 rgba(255, 255, 255, 0.03);
 }
 
 [data-theme='dark'] .flashcard {
-  border-color: rgba(186, 187, 241, 0.1); /* Frappé Lavender tint */
+  border-color: rgba(248, 248, 242, 0.08);
   box-shadow:
-    0 22px 48px rgba(0, 0, 0, 0.3),
-    0 0 0 1px rgba(186, 187, 241, 0.06); /* Frappé Lavender tint */
+    0 22px 48px rgba(0, 0, 0, 0.34),
+    0 0 0 1px rgba(248, 248, 242, 0.03);
 }
 
 [data-theme='dark'] .flashcard::before {
   background:
-    /* Frappé Red margin line */
-    linear-gradient(90deg, rgba(231, 130, 132, 0.18) 0, rgba(231, 130, 132, 0.18) 2px, transparent 2px, transparent 54px),
-    /* Frappé Sapphire ruled lines */
+    linear-gradient(90deg, rgba(249, 38, 114, 0.16) 0, rgba(249, 38, 114, 0.16) 2px, transparent 2px, transparent 54px),
     repeating-linear-gradient(
       to bottom,
       transparent 0,
       transparent calc(var(--rule-height) - 2px),
-      rgba(133, 193, 220, 0.14) calc(var(--rule-height) - 2px),
-      rgba(133, 193, 220, 0.14) var(--rule-height)
+      rgba(102, 217, 239, 0.14) calc(var(--rule-height) - 2px),
+      rgba(102, 217, 239, 0.14) var(--rule-height)
     );
 }
 
@@ -744,44 +743,45 @@
   position: absolute;
   inset: 0;
   background:
-    radial-gradient(circle at top right, rgba(166, 209, 137, 0.05), transparent 26%),  /* Frappé Green */
-    radial-gradient(circle at bottom left, rgba(129, 200, 190, 0.05), transparent 28%); /* Frappé Teal */
+    radial-gradient(circle at top right, rgba(166, 226, 46, 0.06), transparent 26%),
+    radial-gradient(circle at bottom left, rgba(102, 217, 239, 0.05), transparent 28%);
   pointer-events: none;
 }
 
 [data-theme='dark'] .flashcard-hole {
-  background: rgba(198, 208, 245, 0.12); /* Frappé Text tint */
+  background: rgba(248, 248, 242, 0.14);
   box-shadow:
-    inset 0 1px 2px rgba(255, 255, 255, 0.06);
+    inset 0 1px 2px rgba(255, 255, 255, 0.08);
 }
 
+
 [data-theme='dark'] .flashcard-date {
-  color: #b5bfe2; /* Frappé Subtext 1 */
+  color: #b7b7ad;
 }
 
 [data-theme='dark'] .read-more-button {
-  color: #ca9ee6; /* Frappé Mauve */
+  color: #a6e22e;
 }
 
 [data-theme='dark'] .icon-button {
-  background: rgba(41, 44, 60, 0.9); /* Frappé Mantle */
-  border-color: rgba(186, 187, 241, 0.12); /* Frappé Lavender tint */
-  color: #c6d0f5; /* Frappé Text */
+  background: rgba(27, 28, 24, 0.9);
+  border-color: rgba(248, 248, 242, 0.1);
+  color: #f8f8f2;
 }
 
 [data-theme='dark'] .icon-button:hover {
-  border-color: rgba(202, 158, 230, 0.38); /* Frappé Mauve */
-  box-shadow: 0 0 16px rgba(202, 158, 230, 0.1);
+  border-color: rgba(166, 226, 46, 0.34);
+  box-shadow: 0 0 16px rgba(166, 226, 46, 0.08);
 }
 
 [data-theme='dark'] .button-primary {
   background: var(--color-accent);
-  color: #292c3c; /* Frappé Mantle — dark text on mauve */
-  box-shadow: 0 4px 12px rgba(202, 158, 230, 0.22);
+  color: var(--color-bg-strong);
+  box-shadow: 0 4px 12px rgba(166, 226, 46, 0.2);
 }
 
 [data-theme='dark'] .button-primary:hover {
-  box-shadow: 0 6px 16px rgba(202, 158, 230, 0.32);
+  box-shadow: 0 6px 16px rgba(166, 226, 46, 0.3);
 }
 
 .login-shell,
@@ -1380,15 +1380,13 @@
 
   [data-theme='dark'] .flashcard::before {
     background:
-      /* Frappé Red margin line */
-      linear-gradient(90deg, rgba(231, 130, 132, 0.18) 0, rgba(231, 130, 132, 0.18) 2px, transparent 2px, transparent 54px),
-      /* Frappé Sapphire ruled lines */
+      linear-gradient(90deg, rgba(249, 38, 114, 0.16) 0, rgba(249, 38, 114, 0.16) 2px, transparent 2px, transparent 54px),
       repeating-linear-gradient(
         to bottom,
         transparent 0,
         transparent 26px,
-        rgba(133, 193, 220, 0.14) 26px,
-        rgba(133, 193, 220, 0.14) 28px
+        rgba(102, 217, 239, 0.14) 26px,
+        rgba(102, 217, 239, 0.14) 28px
       );
   }
 
