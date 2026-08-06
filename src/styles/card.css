@@ -1,0 +1,328 @@
+/*
+ * Flashcard — "margin sheet".
+ *
+ * The old card carried six competing devices: ruled lines, spiral holes, a red
+ * margin rule, a paper tint, four always-visible buttons and two solid badges.
+ * This keeps exactly one of them. The margin rail survives because it does real
+ * work: it holds the date, and its colour is the card's first tag. Everything
+ * else is typography and whitespace.
+ */
+
+/*
+ * Columns are derived from the board's own width, so the grid reflows on any
+ * change that affects it — window resize, sidebar collapse, zoom — with no
+ * breakpoints involved.
+ *
+ * auto-FILL, not auto-fit: auto-fit collapses the empty tracks, which would
+ * stretch a lone card across the entire board. auto-fill keeps them, so one
+ * card is the same width as one of six.
+ *
+ * min(100%, 17.5rem) rather than a bare 17.5rem: when the board is narrower
+ * than a single track the track would otherwise overflow its container.
+ *
+ * 17.5rem is deliberately tight. A 1fr track grows until a further column
+ * fits, so the minimum also sets the maximum (just under twice itself); at
+ * 19rem that produced 450px cards at 1280px and 600px cards on a tablet.
+ */
+.flashcard-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 17.5rem), 1fr));
+  gap: var(--space-5);
+  align-items: start;
+  min-width: 0;
+}
+
+/* ---------------------------------------------------------------- sheet -- */
+
+.flashcard {
+  --rail-width: 3.1rem;
+  --rail-color: var(--tag-2);
+
+  position: relative;
+  min-width: 0;
+  border: 1px solid var(--color-border);
+  border-radius: 5px;
+  background: var(--note-cream);
+  padding: 0.9rem 1.1rem 0.95rem calc(var(--rail-width) + 1rem);
+  box-shadow: 1px 2px 5px rgba(60, 40, 20, 0.07);
+  transition:
+    box-shadow 180ms var(--motion-smooth),
+    border-color 180ms ease;
+}
+
+.flashcard:hover {
+  box-shadow: 1px 5px 14px rgba(60, 40, 20, 0.11);
+}
+
+.flashcard.note-cream {
+  background: var(--note-cream);
+}
+.flashcard.note-yellow {
+  background: var(--note-yellow);
+}
+.flashcard.note-pink {
+  background: var(--note-pink);
+}
+.flashcard.note-blue {
+  background: var(--note-blue);
+}
+.flashcard.note-green {
+  background: var(--note-green);
+}
+.flashcard.note-lavender {
+  background: var(--note-lavender);
+}
+
+/* ----------------------------------------------------------------- rail -- */
+
+.flashcard-rail {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: var(--rail-width);
+  padding-top: 0.95rem;
+  border-right: 2px solid var(--rail-color);
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.flashcard-day {
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--color-text);
+}
+
+.flashcard-month {
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  line-height: 1;
+  color: var(--color-text-muted);
+}
+
+/* Pinned notes get a marker clipped to the margin, where you would clip one. */
+.flashcard-pin-marker {
+  margin-top: 0.4rem;
+  color: var(--rail-color);
+  display: grid;
+  place-items: center;
+}
+
+/* ------------------------------------------------------------- contents -- */
+
+.flashcard-title {
+  font-family: var(--font-display);
+  font-size: 1.2rem;
+  font-weight: 600;
+  line-height: 1.25;
+  margin: 0 0 0.65rem;
+  color: var(--color-text);
+  overflow-wrap: anywhere;
+}
+
+.flashcard-note {
+  font-size: 0.92rem;
+  line-height: 1.7;
+  color: var(--color-text);
+  opacity: 0.9;
+  overflow: hidden;
+  overflow-wrap: anywhere;
+}
+
+/* Fades the final clipped line rather than slicing through it mid-glyph. */
+.flashcard-note.is-clamped {
+  mask-image: linear-gradient(to bottom, #000 calc(100% - 1.6rem), transparent);
+}
+
+.note-paragraph,
+.note-list,
+.note-heading {
+  margin: 0 0 0.5rem;
+  font-size: 0.92rem;
+  line-height: 1.7;
+}
+
+.note-heading {
+  font-weight: 700;
+  opacity: 1;
+}
+
+.note-list {
+  padding-left: 1.1rem;
+  list-style-type: disc;
+}
+
+.note-rich-content > *:last-child {
+  margin-bottom: 0;
+}
+
+.note-inline-code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.87em;
+  background: var(--color-accent-soft);
+  padding: 0.06rem 0.32rem;
+  border-radius: 4px;
+}
+
+.note-inline-link {
+  color: var(--color-accent-strong);
+  text-decoration: none;
+  border-bottom: 1px solid
+    color-mix(in srgb, var(--color-accent) 35%, transparent);
+}
+
+.note-inline-link:hover {
+  border-bottom-color: var(--color-accent);
+}
+
+.note-attachments {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  margin-top: 0.55rem;
+}
+
+.attachment-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  min-width: 0;
+  font-size: 0.8rem;
+  color: var(--color-accent-strong);
+  text-decoration: none;
+  opacity: 0.9;
+}
+
+.attachment-link:hover {
+  text-decoration: underline;
+}
+
+.attachment-link span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.read-more-button {
+  margin-top: 0.55rem;
+  padding: 0;
+  border: none;
+  background: transparent;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  color: var(--color-accent-strong);
+}
+
+.read-more-button:hover {
+  text-decoration: underline;
+}
+
+/* --------------------------------------------------------------- footer -- */
+
+.flashcard-footer {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-top: 0.75rem;
+  min-width: 0;
+}
+
+.flashcard-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem;
+  min-width: 0;
+  font-size: 0.63rem;
+  font-weight: 700;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.flashcard-meta .meta-sep {
+  color: var(--color-text-muted);
+  opacity: 0.5;
+}
+
+.flashcard-meta .meta-priority-high,
+.flashcard-meta .meta-priority-critical {
+  color: var(--color-danger);
+}
+
+/* -------------------------------------------------------------- actions -- */
+
+/*
+ * The actions live on the footer row rather than floating over the top-right
+ * corner: that corner belongs to the title, and overlaying it clipped long
+ * titles on hover. The footer row is empty on every card, so they cost nothing
+ * there and never shift the layout when they fade in.
+ */
+.flashcard-actions {
+  margin-left: auto;
+  flex: none;
+  display: flex;
+  gap: 0.12rem;
+  opacity: 0;
+  transition: opacity 160ms ease;
+}
+
+.flashcard:hover .flashcard-actions,
+.flashcard:focus-within .flashcard-actions {
+  opacity: 1;
+}
+
+.flashcard-actions .icon-button {
+  width: 1.65rem;
+  height: 1.65rem;
+  border: none;
+  border-radius: 5px;
+  background: transparent;
+  color: var(--color-text-muted);
+  box-shadow: none;
+}
+
+.flashcard-actions .icon-button:hover {
+  background: color-mix(in srgb, var(--color-text) 8%, transparent);
+  color: var(--color-text);
+  transform: none;
+}
+
+.flashcard-actions .icon-button.is-active {
+  color: var(--rail-color);
+}
+
+/* Touch devices have no hover, so the actions stay put. */
+@media (hover: none) {
+  .flashcard-actions {
+    opacity: 1;
+  }
+}
+
+/* ----------------------------------------------------------- responsive -- */
+
+@media (max-width: 720px) {
+  .flashcard {
+    --rail-width: 2.7rem;
+    padding: 0.8rem 0.9rem 0.85rem calc(var(--rail-width) + 0.85rem);
+  }
+
+  .flashcard-title {
+    font-size: 1.12rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .flashcard,
+  .flashcard-actions {
+    transition: none;
+  }
+}

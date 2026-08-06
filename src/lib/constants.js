@@ -14,11 +14,3 @@ export const COLOR_OPTIONS = [
   { value: 'green', label: 'Green' },
   { value: 'lavender', label: 'Lavender' },
 ];
-
-export const TAG_META = {
-  coding: { label: 'Coding', tone: 'coding' },
-  prompt: { label: 'Prompt', tone: 'prompt' },
-  general: { label: 'General', tone: 'general' },
-  research: { label: 'Research', tone: 'research' },
-  other: { label: 'Other', tone: 'other' },
-};

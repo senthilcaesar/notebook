@@ -1,18 +1,18 @@
-import { useEffect, useMemo, useState } from 'react';
-import { AnimatePresence, LayoutGroup } from 'framer-motion';
-import { motion } from 'framer-motion';
-import { Header } from './components/Header.jsx';
-import { Sidebar } from './components/Sidebar.jsx';
-import { Flashcard } from './components/Flashcard.jsx';
-import { CardModal } from './components/CardModal.jsx';
-import { DeleteConfirmModal } from './components/DeleteConfirmModal.jsx';
-import { LoginScreen } from './components/LoginScreen.jsx';
-import { TechStackModal } from './components/TechStackModal.jsx';
-import { ToastRegion } from './components/ToastRegion.jsx';
-import { useAuth } from './hooks/useAuth.js';
-import { useCards } from './hooks/useCards.js';
-import { useLocalStorageState } from './hooks/useLocalStorageState.js';
-import { buildCopyText, getGreeting } from './lib/cards.js';
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { AnimatePresence, LayoutGroup } from "framer-motion";
+import { motion } from "framer-motion";
+import { Header } from "./components/Header.jsx";
+import { Sidebar } from "./components/Sidebar.jsx";
+import { Flashcard } from "./components/Flashcard.jsx";
+import { CardModal } from "./components/CardModal.jsx";
+import { DeleteConfirmModal } from "./components/DeleteConfirmModal.jsx";
+import { LoginScreen } from "./components/LoginScreen.jsx";
+import { TechStackModal } from "./components/TechStackModal.jsx";
+import { ToastRegion } from "./components/ToastRegion.jsx";
+import { useAuth } from "./hooks/useAuth.js";
+import { useCards } from "./hooks/useCards.js";
+import { useLocalStorageState } from "./hooks/useLocalStorageState.js";
+import { buildCopyText, getGreeting } from "./lib/cards.js";
 
 function LoadingScreen() {
   return (
@@ -24,16 +24,27 @@ function LoadingScreen() {
 
 export default function App() {
   const { user, loading: authLoading, loginWithGoogle, logout } = useAuth();
-  const { cards, loading: cardsLoading, syncState, addCard, updateCard, patchCard, deleteCard } = useCards(user?.uid);
+  const {
+    cards,
+    loading: cardsLoading,
+    syncState,
+    addCard,
+    updateCard,
+    patchCard,
+    deleteCard,
+  } = useCards(user?.uid);
 
-  const [theme, setTheme] = useLocalStorageState('nb_theme', 'light');
-  const [sidebarCollapsed, setSidebarCollapsed] = useLocalStorageState('nb_sidebar_collapsed', false);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [activeTag, setActiveTag] = useState('All');
+  const [theme, setTheme] = useLocalStorageState("nb_theme", "light");
+  const [sidebarCollapsed, setSidebarCollapsed] = useLocalStorageState(
+    "nb_sidebar_collapsed",
+    false,
+  );
+  const [searchQuery, setSearchQuery] = useState("");
+  const [activeTag, setActiveTag] = useState("All");
   const [editingCard, setEditingCard] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [cardToDelete, setCardToDelete] = useState(null);
-  const [authError, setAuthError] = useState('');
+  const [authError, setAuthError] = useState("");
   const [isTechStackOpen, setIsTechStackOpen] = useState(false);
   const [isHeaderCondensed, setIsHeaderCondensed] = useState(false);
   const [toasts, setToasts] = useState([]);
@@ -49,25 +60,26 @@ export default function App() {
     }
 
     updateHeaderState();
-    window.addEventListener('scroll', updateHeaderState, { passive: true });
-    window.addEventListener('resize', updateHeaderState);
+    window.addEventListener("scroll", updateHeaderState, { passive: true });
+    window.addEventListener("resize", updateHeaderState);
 
     return () => {
-      window.removeEventListener('scroll', updateHeaderState);
-      window.removeEventListener('resize', updateHeaderState);
+      window.removeEventListener("scroll", updateHeaderState);
+      window.removeEventListener("resize", updateHeaderState);
     };
   }, []);
 
-  function pushToast(message, type = 'info') {
-    const id = window.crypto?.randomUUID?.() || `${Date.now()}-${Math.random()}`;
+  const pushToast = useCallback((message, type = "info") => {
+    const id =
+      window.crypto?.randomUUID?.() || `${Date.now()}-${Math.random()}`;
     setToasts((current) => [...current, { id, message, type }]);
     window.setTimeout(() => {
       setToasts((current) => current.filter((toast) => toast.id !== id));
     }, 2600);
-  }
+  }, []);
 
   const tagList = useMemo(() => {
-    const counts = new Map([['All', cards.length]]);
+    const counts = new Map([["All", cards.length]]);
     cards.forEach((card) => {
       (card.tags || []).forEach((tag) => {
         counts.set(tag, (counts.get(tag) || 0) + 1);
@@ -76,8 +88,8 @@ export default function App() {
 
     return [...counts.entries()]
       .sort(([left], [right]) => {
-        if (left === 'All') return -1;
-        if (right === 'All') return 1;
+        if (left === "All") return -1;
+        if (right === "All") return 1;
         return left.localeCompare(right);
       })
       .map(([name, count]) => ({ name, count }));
@@ -88,13 +100,13 @@ export default function App() {
 
     return [...cards]
       .filter((card) => {
-        const searchableTags = (card.tags || []).join(' ').toLowerCase();
+        const searchableTags = (card.tags || []).join(" ").toLowerCase();
         const matchesSearch =
           !query ||
           card.title.toLowerCase().includes(query) ||
           card.note.toLowerCase().includes(query) ||
           searchableTags.includes(query);
-        const matchesTag = activeTag === 'All' || card.tags.includes(activeTag);
+        const matchesTag = activeTag === "All" || card.tags.includes(activeTag);
 
         return matchesSearch && matchesTag;
       })
@@ -103,28 +115,28 @@ export default function App() {
           return left.pinned ? -1 : 1;
         }
 
-        return (right.date || '').localeCompare(left.date || '');
+        return (right.date || "").localeCompare(left.date || "");
       });
   }, [activeTag, cards, searchQuery]);
 
   async function handleLogin() {
     try {
-      setAuthError('');
+      setAuthError("");
       await loginWithGoogle();
     } catch (error) {
-      console.error('Login failed:', error);
-      setAuthError(error.message || 'Sign-in failed.');
+      console.error("Login failed:", error);
+      setAuthError(error.message || "Sign-in failed.");
     }
   }
 
   async function handleLogout() {
     await logout();
-    pushToast('Signed out', 'info');
+    pushToast("Signed out", "info");
   }
 
   async function handleSaveCard(formData) {
     if (!formData.title.trim() && !formData.note.trim()) {
-      pushToast('Please add a title or note before saving.', 'error');
+      pushToast("Please add a title or note before saving.", "error");
       return;
     }
 
@@ -137,14 +149,14 @@ export default function App() {
     try {
       if (isEditing) {
         await updateCard(idToUpdate, formData);
-        pushToast('Card updated', 'success');
+        pushToast("Card updated", "success");
       } else {
         await addCard(formData);
-        pushToast('Card saved', 'success');
+        pushToast("Card saved", "success");
       }
     } catch (error) {
-      console.error('Save failed:', error);
-      pushToast('Save failed. Please try again.', 'error');
+      console.error("Save failed:", error);
+      pushToast("Save failed. Please try again.", "error");
     }
   }
 
@@ -156,32 +168,45 @@ export default function App() {
 
     try {
       await deleteCard(idToDelete);
-      pushToast('Card deleted', 'success');
+      pushToast("Card deleted", "success");
     } catch (error) {
-      console.error('Delete failed:', error);
-      pushToast('Delete failed. Please try again.', 'error');
+      console.error("Delete failed:", error);
+      pushToast("Delete failed. Please try again.", "error");
     }
   }
 
-  async function handleTogglePin(card) {
-    try {
-      await patchCard(card.id, { pinned: !card.pinned });
-      pushToast(card.pinned ? 'Card unpinned' : 'Card pinned', 'success');
-    } catch (error) {
-      console.error('Pin update failed:', error);
-      pushToast('Could not update pin.', 'error');
-    }
-  }
+  // The four handlers below are passed to every <Flashcard>, which is memoised.
+  // They have to keep a stable identity or the memo does nothing.
+  const handleTogglePin = useCallback(
+    async (card) => {
+      try {
+        await patchCard(card.id, { pinned: !card.pinned });
+        pushToast(card.pinned ? "Card unpinned" : "Card pinned", "success");
+      } catch (error) {
+        console.error("Pin update failed:", error);
+        pushToast("Could not update pin.", "error");
+      }
+    },
+    [patchCard, pushToast],
+  );
 
-  async function handleCopy(card) {
-    try {
-      await navigator.clipboard.writeText(buildCopyText(card));
-      pushToast('Copied to clipboard', 'success');
-    } catch (error) {
-      console.error('Copy failed:', error);
-      pushToast('Copy failed.', 'error');
-    }
-  }
+  const handleCopy = useCallback(
+    async (card) => {
+      try {
+        await navigator.clipboard.writeText(buildCopyText(card));
+        pushToast("Copied to clipboard", "success");
+      } catch (error) {
+        console.error("Copy failed:", error);
+        pushToast("Copy failed.", "error");
+      }
+    },
+    [pushToast],
+  );
+
+  const handleEditCard = useCallback((selectedCard) => {
+    setEditingCard(selectedCard);
+    setIsModalOpen(true);
+  }, []);
 
   if (authLoading) {
     return <LoadingScreen />;
@@ -210,13 +235,17 @@ export default function App() {
           onOpenTechStack={() => setIsTechStackOpen(true)}
           syncState={syncState}
           theme={theme}
-          onToggleTheme={() => setTheme((current) => (current === 'dark' ? 'light' : 'dark'))}
+          onToggleTheme={() =>
+            setTheme((current) => (current === "dark" ? "light" : "dark"))
+          }
           onLogout={handleLogout}
           greeting={getGreeting(user.displayName)}
           isCondensed={isHeaderCondensed}
         />
 
-        <div className={`workspace ${sidebarCollapsed ? 'is-sidebar-collapsed' : ''}`}>
+        <div
+          className={`workspace ${sidebarCollapsed ? "is-sidebar-collapsed" : ""}`}
+        >
           <Sidebar
             tags={tagList}
             activeTag={activeTag}
@@ -231,8 +260,8 @@ export default function App() {
             ) : filteredCards.length === 0 ? (
               <div className="empty-board">
                 {cards.length === 0
-                  ? 'No cards yet. Start with your first note.'
-                  : 'No cards match the current search and tag filter.'}
+                  ? "No cards yet. Start with your first note."
+                  : "No cards match the current search and tag filter."}
               </div>
             ) : (
               <LayoutGroup>
@@ -242,10 +271,7 @@ export default function App() {
                       <Flashcard
                         key={card.id}
                         card={card}
-                        onEdit={(selectedCard) => {
-                          setEditingCard(selectedCard);
-                          setIsModalOpen(true);
-                        }}
+                        onEdit={handleEditCard}
                         onDelete={setCardToDelete}
                         onCopy={handleCopy}
                         onTogglePin={handleTogglePin}
@@ -276,7 +302,10 @@ export default function App() {
         onConfirm={handleDeleteConfirmed}
       />
 
-      <TechStackModal open={isTechStackOpen} onClose={() => setIsTechStackOpen(false)} />
+      <TechStackModal
+        open={isTechStackOpen}
+        onClose={() => setIsTechStackOpen(false)}
+      />
 
       <ToastRegion toasts={toasts} />
     </>

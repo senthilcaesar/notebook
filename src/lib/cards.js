@@ -66,19 +66,6 @@ export function buildCardPayload(card) {
   };
 }
 
-export function formatDisplayDate(dateString) {
-  if (!dateString) return 'No date';
-
-  const parsed = new Date(`${dateString}T12:00:00`);
-  if (Number.isNaN(parsed.getTime())) return 'No date';
-
-  return new Intl.DateTimeFormat('en-US', {
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric',
-  }).format(parsed);
-}
-
 export function buildCopyText(card) {
   return String(card.note ?? '').trim();
 }

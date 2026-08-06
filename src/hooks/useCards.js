@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from "react";
 import {
   addDoc,
   collection,
@@ -9,31 +9,31 @@ import {
   serverTimestamp,
   updateDoc,
   deleteDoc,
-} from 'firebase/firestore';
-import { db } from '../lib/firebase.js';
-import { buildCardPayload, normalizeCard } from '../lib/cards.js';
+} from "firebase/firestore";
+import { db } from "../lib/firebase.js";
+import { buildCardPayload, normalizeCard } from "../lib/cards.js";
 
 export function useCards(userId) {
   const [cards, setCards] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [syncState, setSyncState] = useState('syncing');
+  const [syncState, setSyncState] = useState("syncing");
   const [error, setError] = useState(null);
 
   useEffect(() => {
     if (!userId) {
       setCards([]);
       setLoading(false);
-      setSyncState('syncing');
+      setSyncState("syncing");
       return undefined;
     }
 
     setLoading(true);
-    setSyncState('syncing');
+    setSyncState("syncing");
     setError(null);
 
     const cardsQuery = query(
-      collection(db, 'users', userId, 'cards'),
-      orderBy('createdAt', 'desc'),
+      collection(db, "users", userId, "cards"),
+      orderBy("createdAt", "desc"),
     );
 
     const unsubscribe = onSnapshot(
@@ -41,52 +41,67 @@ export function useCards(userId) {
       (snapshot) => {
         setCards(snapshot.docs.map(normalizeCard));
         setLoading(false);
-        setSyncState('ok');
+        setSyncState("ok");
       },
       (snapshotError) => {
-        console.error('Firestore snapshot error:', snapshotError);
+        console.error("Firestore snapshot error:", snapshotError);
         setError(snapshotError);
         setLoading(false);
-        setSyncState('error');
+        setSyncState("error");
       },
     );
 
     return unsubscribe;
   }, [userId]);
 
-  async function addCard(card) {
-    if (!userId) return;
-    setSyncState('syncing');
-    await addDoc(collection(db, 'users', userId, 'cards'), {
-      ...buildCardPayload(card),
-      createdAt: serverTimestamp(),
-      updatedAt: serverTimestamp(),
-    });
-  }
+  // These are wrapped so their identity only changes with `userId`. Consumers
+  // pass them down to memoised card components, which would otherwise re-render
+  // on every keystroke in the search box.
+  const addCard = useCallback(
+    async (card) => {
+      if (!userId) return;
+      setSyncState("syncing");
+      await addDoc(collection(db, "users", userId, "cards"), {
+        ...buildCardPayload(card),
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp(),
+      });
+    },
+    [userId],
+  );
 
-  async function updateCard(cardId, updates) {
-    if (!userId) return;
-    setSyncState('syncing');
-    await updateDoc(doc(db, 'users', userId, 'cards', cardId), {
-      ...buildCardPayload(updates),
-      updatedAt: serverTimestamp(),
-    });
-  }
+  const updateCard = useCallback(
+    async (cardId, updates) => {
+      if (!userId) return;
+      setSyncState("syncing");
+      await updateDoc(doc(db, "users", userId, "cards", cardId), {
+        ...buildCardPayload(updates),
+        updatedAt: serverTimestamp(),
+      });
+    },
+    [userId],
+  );
 
-  async function patchCard(cardId, updates) {
-    if (!userId) return;
-    setSyncState('syncing');
-    await updateDoc(doc(db, 'users', userId, 'cards', cardId), {
-      ...updates,
-      updatedAt: serverTimestamp(),
-    });
-  }
+  const patchCard = useCallback(
+    async (cardId, updates) => {
+      if (!userId) return;
+      setSyncState("syncing");
+      await updateDoc(doc(db, "users", userId, "cards", cardId), {
+        ...updates,
+        updatedAt: serverTimestamp(),
+      });
+    },
+    [userId],
+  );
 
-  async function deleteCard(cardId) {
-    if (!userId) return;
-    setSyncState('syncing');
-    await deleteDoc(doc(db, 'users', userId, 'cards', cardId));
-  }
+  const deleteCard = useCallback(
+    async (cardId) => {
+      if (!userId) return;
+      setSyncState("syncing");
+      await deleteDoc(doc(db, "users", userId, "cards", cardId));
+    },
+    [userId],
+  );
 
   return {
     cards,

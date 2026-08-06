@@ -1,5 +1,5 @@
 :root,
-[data-theme='light'] {
+[data-theme="light"] {
   --color-bg: #f3eadc;
   --color-bg-strong: #ead8ba;
   --color-surface: rgba(255, 250, 242, 0.76);
@@ -24,9 +24,20 @@
   --note-blue: #e6f2ff;
   --note-green: #e7f7ea;
   --note-lavender: #efe7ff;
+
+  /* Tag rail colours. Tags are free-form, so getTagColorIndex() in lib/tags.js
+     maps any tag name onto one of these eight slots deterministically. */
+  --tag-0: #3b6ea5;
+  --tag-1: #7a5cb8;
+  --tag-2: #5d7a52;
+  --tag-3: #a44d7d;
+  --tag-4: #b06a2c;
+  --tag-5: #2f7f74;
+  --tag-6: #8f4b8f;
+  --tag-7: #8c5430;
 }
 
-[data-theme='dark'] {
+[data-theme="dark"] {
   --color-bg: #1f201c;
   --color-bg-strong: #171814;
   --color-surface: rgba(39, 40, 34, 0.86);
@@ -51,4 +62,14 @@
   --note-blue: #233544;
   --note-green: #253a29;
   --note-lavender: #312642;
+
+  /* Same eight slots, lifted for contrast against the dark paper. */
+  --tag-0: #66d9ef;
+  --tag-1: #ae81ff;
+  --tag-2: #a6e22e;
+  --tag-3: #f92672;
+  --tag-4: #fd971f;
+  --tag-5: #5fd7c5;
+  --tag-6: #e879f9;
+  --tag-7: #e6db74;
 }

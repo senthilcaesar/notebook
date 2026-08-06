@@ -1,4 +1,5 @@
-import { AnimatePresence, motion } from 'framer-motion';
+import { useRef } from "react";
+import { AnimatePresence, motion } from "framer-motion";
 import {
   Braces,
   CloudCog,
@@ -8,8 +9,9 @@ import {
   Sparkles,
   WandSparkles,
   X,
-} from 'lucide-react';
-import { getTechStackItems } from '../lib/techStack.js';
+} from "lucide-react";
+import { getTechStackItems } from "../lib/techStack.js";
+import { useModalA11y } from "../hooks/useModalA11y.js";
 
 const ICONS = {
   react: PanelsTopLeft,
@@ -23,6 +25,9 @@ const ICONS = {
 
 export function TechStackModal({ open, onClose }) {
   const items = getTechStackItems();
+  const panelRef = useRef(null);
+
+  useModalA11y({ open, onClose, containerRef: panelRef });
 
   return (
     <AnimatePresence>
@@ -35,7 +40,11 @@ export function TechStackModal({ open, onClose }) {
           onClick={onClose}
         >
           <motion.section
+            ref={panelRef}
             className="dialog-card tech-stack-card"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="tech-stack-title"
             initial={{ opacity: 0, y: 20, scale: 0.98 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 16, scale: 0.98 }}
@@ -45,11 +54,18 @@ export function TechStackModal({ open, onClose }) {
             <div className="modal-header">
               <div>
                 <p className="eyebrow">Architecture</p>
-                <h2>Project Tech Stack</h2>
-                <p className="tech-stack-intro">This app is built using the following technologies:</p>
+                <h2 id="tech-stack-title">Project Tech Stack</h2>
+                <p className="tech-stack-intro">
+                  This app is built using the following technologies:
+                </p>
               </div>
 
-              <button type="button" className="icon-button" onClick={onClose} aria-label="Close tech stack modal">
+              <button
+                type="button"
+                className="icon-button"
+                onClick={onClose}
+                aria-label="Close tech stack modal"
+              >
                 <X size={18} />
               </button>
             </div>
@@ -59,7 +75,9 @@ export function TechStackModal({ open, onClose }) {
                 const Icon = ICONS[item.kind] || Code2;
                 return (
                   <div key={item.id} className="tech-stack-item">
-                    <div className={`tech-stack-icon tech-stack-icon-${item.kind}`}>
+                    <div
+                      className={`tech-stack-icon tech-stack-icon-${item.kind}`}
+                    >
                       <Icon size={18} />
                     </div>
                     <div className="tech-stack-copy">
