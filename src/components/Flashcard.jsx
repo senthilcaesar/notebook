@@ -1,7 +1,7 @@
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { Copy, Link2, Pencil, Pin, Trash2 } from "lucide-react";
-import { parseRichNote } from "../lib/cards.js";
+import { parseRichNote, toSafeHref } from "../lib/cards.js";
 import { getRailDate, getTagColorVar } from "../lib/tags.js";
 
 // Roughly six lines of note before the card collapses and offers "Read more".
@@ -31,6 +31,16 @@ function FlashcardComponent({ card, onEdit, onDelete, onCopy, onTogglePin }) {
   const richBlocks = useMemo(() => parseRichNote(card.note), [card.note]);
 
   const { day, month } = useMemo(() => getRailDate(card.date), [card.date]);
+
+  // Anything that cannot be resolved to an http(s)/mailto URL is dropped rather
+  // than rendered as an inert link, so a bad value never becomes a live href.
+  const safeAttachments = useMemo(
+    () =>
+      (card.attachments ?? [])
+        .map((item) => ({ label: item, href: toSafeHref(item) }))
+        .filter((item) => item.href !== null),
+    [card.attachments],
+  );
 
   // The rail takes its colour from the first tag, which is the tag the sidebar
   // groups by, so the colour and the filter always agree.
@@ -104,7 +114,7 @@ function FlashcardComponent({ card, onEdit, onDelete, onCopy, onTogglePin }) {
             : undefined
         }
       >
-        {richBlocks.length > 0 || card.attachments?.length ? (
+        {richBlocks.length > 0 || safeAttachments.length > 0 ? (
           <div className="note-rich-content">
             {richBlocks.map((block, index) => {
               if (block.type === "heading") {
@@ -135,18 +145,18 @@ function FlashcardComponent({ card, onEdit, onDelete, onCopy, onTogglePin }) {
               );
             })}
 
-            {card.attachments?.length ? (
+            {safeAttachments.length > 0 ? (
               <div className="note-attachments">
-                {card.attachments.map((attachment) => (
+                {safeAttachments.map(({ label, href }) => (
                   <a
-                    key={attachment}
-                    href={attachment}
+                    key={label}
+                    href={href}
                     target="_blank"
-                    rel="noreferrer"
+                    rel="noreferrer noopener"
                     className="attachment-link"
                   >
                     <Link2 size={13} />
-                    <span>{attachment}</span>
+                    <span>{label}</span>
                   </a>
                 ))}
               </div>

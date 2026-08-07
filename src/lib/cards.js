@@ -176,3 +176,33 @@ export function getGreeting(name) {
   const firstName = (name || '').split(' ')[0];
   return firstName ? `${prefix}, ${firstName}` : prefix;
 }
+
+const SAFE_PROTOCOLS = new Set(["http:", "https:", "mailto:"]);
+
+/**
+ * Returns a safe href for a user-supplied attachment, or null if it cannot be
+ * made safe. Attachments are free text, so without this a stored
+ * `javascript:...` value would execute on click — the inline-link parser in
+ * parseRichNote already restricts itself to http(s), and this closes the same
+ * hole for the attachment list.
+ *
+ * A bare host ("example.com/docs") is treated as https rather than discarded,
+ * since that is what someone pasting a URL almost always means.
+ */
+export function toSafeHref(value) {
+  const raw = String(value ?? "").trim();
+  if (!raw) return null;
+
+  let url;
+  try {
+    url = new URL(raw);
+  } catch {
+    try {
+      url = new URL(`https://${raw}`);
+    } catch {
+      return null;
+    }
+  }
+
+  return SAFE_PROTOCOLS.has(url.protocol) ? url.href : null;
+}
