@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Pin, X } from "lucide-react";
 import { COLOR_OPTIONS, PRIORITY_OPTIONS } from "../lib/constants.js";
@@ -39,18 +39,22 @@ export function CardModal({ open, card, onClose, onSubmit }) {
   const titleRef = useRef(null);
   const panelRef = useRef(null);
 
-  function handleSave() {
+  // Re-initialise while rendering rather than from an effect: an effect would
+  // paint the previous card's values for one frame and cost an extra render.
+  const [lastCard, setLastCard] = useState(card);
+  if (card !== lastCard) {
+    setLastCard(card);
+    setForm(getInitialForm(card));
+  }
+
+  const handleSave = useCallback(() => {
     const payload = {
       ...form,
       attachments: parseAttachmentLines(form.attachmentsText),
     };
     delete payload.attachmentsText;
     onSubmit(payload);
-  }
-
-  useEffect(() => {
-    setForm(getInitialForm(card));
-  }, [card]);
+  }, [form, onSubmit]);
 
   useModalA11y({
     open,
@@ -71,7 +75,7 @@ export function CardModal({ open, card, onClose, onSubmit }) {
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [form, onSubmit, open]);
+  }, [handleSave, open]);
 
   function commitTag() {
     const nextTag = tagDraft.trim().replace(/,$/, "");

@@ -15,21 +15,23 @@ import { buildCardPayload, normalizeCard } from "../lib/cards.js";
 
 export function useCards(userId) {
   const [cards, setCards] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(Boolean(userId));
   const [syncState, setSyncState] = useState("syncing");
   const [error, setError] = useState(null);
 
-  useEffect(() => {
-    if (!userId) {
-      setCards([]);
-      setLoading(false);
-      setSyncState("syncing");
-      return undefined;
-    }
-
-    setLoading(true);
+  // Reset during render, not in the effect: clearing in an effect leaves the
+  // previous user's cards on screen for a frame after an account switch.
+  const [lastUserId, setLastUserId] = useState(userId);
+  if (userId !== lastUserId) {
+    setLastUserId(userId);
+    setCards([]);
+    setLoading(Boolean(userId));
     setSyncState("syncing");
     setError(null);
+  }
+
+  useEffect(() => {
+    if (!userId) return undefined;
 
     const cardsQuery = query(
       collection(db, "users", userId, "cards"),
