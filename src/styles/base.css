@@ -47,3 +47,19 @@ img {
 a {
   color: inherit;
 }
+
+/*
+ * Covers CSS transitions and animations app-wide. framer-motion is handled
+ * separately by MotionConfig in main.jsx, and the one smooth scroll we trigger
+ * from JS is guarded at its call site in Header.jsx.
+ */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

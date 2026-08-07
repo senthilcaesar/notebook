@@ -18,6 +18,11 @@ function SyncIndicator({ state }) {
   );
 }
 
+function scrollToTop() {
+  const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  window.scrollTo({ top: 0, behavior: reduced ? "auto" : "smooth" });
+}
+
 export function Header({
   user,
   searchQuery,
@@ -35,13 +40,14 @@ export function Header({
     <header className={`app-header ${isCondensed ? 'is-condensed' : ''}`}>
       <div
         className="brand-block"
-        onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+        onClick={scrollToTop}
         style={{ cursor: 'pointer' }}
         role="button"
         tabIndex={0}
         onKeyDown={(e) => {
-          if (e.key === 'Enter' || e.key === ' ') {
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            scrollToTop();
           }
         }}
       >

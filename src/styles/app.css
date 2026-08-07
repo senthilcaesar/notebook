@@ -1120,3 +1120,21 @@
   .delete-dialog-header {
     align-items: flex-start;
   }}
+.error-card {
+  display: grid;
+  gap: var(--space-4);
+  justify-items: start;
+  max-width: 32rem;
+  text-align: left;
+}
+
+.error-detail {
+  margin: 0;
+  padding: var(--space-3);
+  width: 100%;
+  overflow-x: auto;
+  border-radius: var(--radius-xs);
+  background: var(--color-panel);
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.8rem;
+}
