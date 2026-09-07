@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { Header } from "./components/Header.jsx";
 import { Sidebar } from "./components/Sidebar.jsx";
 import { Flashcard } from "./components/Flashcard.jsx";
+import { ExpandedCardModal } from "./components/ExpandedCardModal.jsx";
 import { CardModal } from "./components/CardModal.jsx";
 import { DeleteConfirmModal } from "./components/DeleteConfirmModal.jsx";
 import { LoginScreen } from "./components/LoginScreen.jsx";
@@ -12,7 +13,7 @@ import { ToastRegion } from "./components/ToastRegion.jsx";
 import { useAuth } from "./hooks/useAuth.js";
 import { useCards } from "./hooks/useCards.js";
 import { useLocalStorageState } from "./hooks/useLocalStorageState.js";
-import { buildCopyText, getGreeting } from "./lib/cards.js";
+import { buildCopyText, getGreeting, toggleTaskInNote } from "./lib/cards.js";
 
 function LoadingScreen() {
   return (
@@ -41,6 +42,7 @@ export default function App() {
   );
   const [searchQuery, setSearchQuery] = useState("");
   const [activeTag, setActiveTag] = useState("All");
+  const [expandedCardId, setExpandedCardId] = useState(null);
   const [editingCard, setEditingCard] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [cardToDelete, setCardToDelete] = useState(null);
@@ -203,10 +205,78 @@ export default function App() {
     [pushToast],
   );
 
+  const handleToggleTask = useCallback(
+    async (card, taskIndex) => {
+      const updatedNote = toggleTaskInNote(card.note, taskIndex);
+      try {
+        await patchCard(card.id, { note: updatedNote });
+      } catch (error) {
+        console.error("Task update failed:", error);
+        pushToast("Could not update checklist task.", "error");
+      }
+    },
+    [patchCard, pushToast],
+  );
+
+  const handleToggleRead = useCallback(
+    async (card) => {
+      try {
+        await patchCard(card.id, { read: !card.read });
+        pushToast(
+          card.read ? "Marked note as unread" : "Marked note as read",
+          "success",
+        );
+      } catch (error) {
+        console.error("Read update failed:", error);
+        pushToast("Could not update read status.", "error");
+      }
+    },
+    [patchCard, pushToast],
+  );
+
+  const handleOpenCard = useCallback((selectedCard) => {
+    setExpandedCardId(selectedCard.id);
+  }, []);
+
+  const handleCloseExpanded = useCallback(() => {
+    setExpandedCardId(null);
+  }, []);
+
   const handleEditCard = useCallback((selectedCard) => {
+    setExpandedCardId(null);
     setEditingCard(selectedCard);
     setIsModalOpen(true);
   }, []);
+
+  const expandedCard = useMemo(
+    () => cards.find((card) => card.id === expandedCardId) || null,
+    [cards, expandedCardId],
+  );
+
+  const currentExpandedIndex = useMemo(
+    () => filteredCards.findIndex((card) => card.id === expandedCardId),
+    [filteredCards, expandedCardId],
+  );
+
+  const hasPrevCard = currentExpandedIndex > 0;
+  const hasNextCard =
+    currentExpandedIndex >= 0 &&
+    currentExpandedIndex < filteredCards.length - 1;
+
+  const handlePrevCard = useCallback(() => {
+    if (currentExpandedIndex > 0) {
+      setExpandedCardId(filteredCards[currentExpandedIndex - 1].id);
+    }
+  }, [filteredCards, currentExpandedIndex]);
+
+  const handleNextCard = useCallback(() => {
+    if (
+      currentExpandedIndex >= 0 &&
+      currentExpandedIndex < filteredCards.length - 1
+    ) {
+      setExpandedCardId(filteredCards[currentExpandedIndex + 1].id);
+    }
+  }, [filteredCards, currentExpandedIndex]);
 
   if (authLoading) {
     return <LoadingScreen />;
@@ -271,10 +341,14 @@ export default function App() {
                       <Flashcard
                         key={card.id}
                         card={card}
+                        searchQuery={searchQuery}
+                        onOpen={handleOpenCard}
                         onEdit={handleEditCard}
                         onDelete={setCardToDelete}
                         onCopy={handleCopy}
                         onTogglePin={handleTogglePin}
+                        onToggleRead={handleToggleRead}
+                        onToggleTask={handleToggleTask}
                       />
                     ))}
                   </AnimatePresence>
@@ -284,6 +358,25 @@ export default function App() {
           </main>
         </div>
       </div>
+
+      <ExpandedCardModal
+        open={Boolean(expandedCard)}
+        card={expandedCard}
+        cardIndex={currentExpandedIndex + 1}
+        cardTotal={filteredCards.length}
+        hasPrev={hasPrevCard}
+        hasNext={hasNextCard}
+        onPrev={handlePrevCard}
+        onNext={handleNextCard}
+        searchQuery={searchQuery}
+        onClose={handleCloseExpanded}
+        onEdit={handleEditCard}
+        onDelete={setCardToDelete}
+        onCopy={handleCopy}
+        onTogglePin={handleTogglePin}
+        onToggleRead={handleToggleRead}
+        onToggleTask={handleToggleTask}
+      />
 
       <CardModal
         open={isModalOpen}

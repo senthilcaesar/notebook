@@ -1,7 +1,7 @@
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { motion } from "framer-motion";
-import { Copy, Link2, Pencil, Pin, Trash2 } from "lucide-react";
-import { parseRichNote, toSafeHref } from "../lib/cards.js";
+import { CheckCheck, Copy, Link2, Pencil, Pin, Trash2 } from "lucide-react";
+import { parseRichNote, splitHighlightedText, toSafeHref } from "../lib/cards.js";
 import { getRailDate, getTagColorVar } from "../lib/tags.js";
 
 // Roughly six lines of note before the card collapses and offers "Read more".
@@ -15,20 +15,43 @@ const PRIORITY_LABELS = {
   critical: "Critical",
 };
 
-function FlashcardComponent({ card, onEdit, onDelete, onCopy, onTogglePin }) {
+function FlashcardComponent({
+  card,
+  searchQuery,
+  onOpen,
+  onEdit,
+  onDelete,
+  onCopy,
+  onTogglePin,
+  onToggleRead,
+  onToggleTask,
+}) {
   const [expanded, setExpanded] = useState(false);
   const [canExpand, setCanExpand] = useState(false);
   const noteRef = useRef(null);
+
+  const handleCardClick = useCallback(
+    (event) => {
+      if (event.target.closest("a, button, input, label, [role='button']")) {
+        return;
+      }
+      onOpen?.(card);
+    },
+    [card, onOpen],
+  );
+
+  const attachments = card.attachments;
+  const note = card.note;
 
   useEffect(() => {
     const element = noteRef.current;
     if (!element) return;
     setCanExpand(element.scrollHeight > COLLAPSED_NOTE_HEIGHT);
-  }, [card.attachments, card.note]);
+  }, [attachments, note]);
 
   // Markdown parsing is the most expensive thing this component does, and the
   // note only changes on edit — not on every re-render from a search keystroke.
-  const richBlocks = useMemo(() => parseRichNote(card.note), [card.note]);
+  const richBlocks = useMemo(() => parseRichNote(note), [note]);
 
   const { day, month } = useMemo(() => getRailDate(card.date), [card.date]);
 
@@ -36,48 +59,91 @@ function FlashcardComponent({ card, onEdit, onDelete, onCopy, onTogglePin }) {
   // than rendered as an inert link, so a bad value never becomes a live href.
   const safeAttachments = useMemo(
     () =>
-      (card.attachments ?? [])
+      (attachments ?? [])
         .map((item) => ({ label: item, href: toSafeHref(item) }))
         .filter((item) => item.href !== null),
-    [card.attachments],
+    [attachments],
   );
 
   // The rail takes its colour from the first tag, which is the tag the sidebar
   // groups by, so the colour and the filter always agree.
   const railColor = getTagColorVar(card.tags?.[0]);
 
-  const renderInline = useCallback(function renderInline(parts, keyPrefix) {
-    return parts.map((part, index) => {
-      const key = `${keyPrefix}-${index}`;
-      if (part.type === "link") {
+  const renderHighlightedSegments = useCallback(
+    (text, keyPrefix) => {
+      if (!searchQuery) return text;
+      const segments = splitHighlightedText(text, searchQuery);
+      return segments.map((seg, sIndex) =>
+        seg.type === "highlight" ? (
+          <mark key={`${keyPrefix}-hl-${sIndex}`} className="search-highlight">
+            {seg.content}
+          </mark>
+        ) : (
+          <span key={`${keyPrefix}-txt-${sIndex}`}>{seg.content}</span>
+        ),
+      );
+    },
+    [searchQuery],
+  );
+
+  const renderInline = useCallback(
+    function renderInline(parts, keyPrefix) {
+      return parts.map((part, index) => {
+        const key = `${keyPrefix}-${index}`;
+        if (part.type === "link") {
+          return (
+            <a
+              key={key}
+              href={part.href}
+              target="_blank"
+              rel="noreferrer"
+              className="note-inline-link"
+            >
+              {part.label}
+            </a>
+          );
+        }
+
+        if (part.type === "code") {
+          return (
+            <code key={key} className="note-inline-code">
+              {part.content}
+            </code>
+          );
+        }
+
+        if (part.type === "strong") {
+          return (
+            <strong key={key}>
+              {renderHighlightedSegments(part.content, `${key}-strong`)}
+            </strong>
+          );
+        }
+
         return (
-          <a
-            key={key}
-            href={part.href}
-            target="_blank"
-            rel="noreferrer"
-            className="note-inline-link"
-          >
-            {part.label}
-          </a>
+          <span key={key}>
+            {renderHighlightedSegments(part.content, `${key}-span`)}
+          </span>
         );
-      }
+      });
+    },
+    [renderHighlightedSegments],
+  );
 
-      if (part.type === "code") {
-        return (
-          <code key={key} className="note-inline-code">
-            {part.content}
-          </code>
-        );
-      }
-
-      if (part.type === "strong") {
-        return <strong key={key}>{part.content}</strong>;
-      }
-
-      return <span key={key}>{part.content}</span>;
-    });
-  }, []);
+  const renderedTitle = useMemo(() => {
+    const rawTitle = card.title || "Untitled";
+    if (!searchQuery) return rawTitle;
+    const segments = splitHighlightedText(rawTitle, searchQuery);
+    return segments.map((seg, index) =>
+      seg.type === "highlight" ? (
+        <mark key={`title-hl-${index}`} className="search-highlight">
+          {seg.content}
+        </mark>
+      ) : (
+        <span key={`title-txt-${index}`}>{seg.content}</span>
+      ),
+    );
+  }, [card.title, searchQuery]);
 
   const priorityLabel =
     card.priority && card.priority !== "none"
@@ -90,8 +156,9 @@ function FlashcardComponent({ card, onEdit, onDelete, onCopy, onTogglePin }) {
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: 10 }}
-      className={`flashcard note-${card.color} ${card.pinned ? "is-pinned" : ""}`}
+      className={`flashcard note-${card.color} ${card.pinned ? "is-pinned" : ""} ${card.read ? "is-read" : ""}`}
       style={{ "--rail-color": railColor }}
+      onClick={handleCardClick}
     >
       <div className="flashcard-rail">
         <span className="flashcard-day">{day}</span>
@@ -101,9 +168,18 @@ function FlashcardComponent({ card, onEdit, onDelete, onCopy, onTogglePin }) {
             <Pin size={13} />
           </span>
         ) : null}
+        {card.read ? (
+          <span
+            className="flashcard-read-marker"
+            aria-hidden="true"
+            title="Read"
+          >
+            <CheckCheck size={13} />
+          </span>
+        ) : null}
       </div>
 
-      <h3 className="flashcard-title">{card.title || "Untitled"}</h3>
+      <h3 className="flashcard-title">{renderedTitle}</h3>
 
       <div
         ref={noteRef}
@@ -123,6 +199,40 @@ function FlashcardComponent({ card, onEdit, onDelete, onCopy, onTogglePin }) {
                   <Tag key={`block-${index}`} className="note-heading">
                     {renderInline(block.content, `heading-${index}`)}
                   </Tag>
+                );
+              }
+
+              if (block.type === "checklist") {
+                return (
+                  <ul key={`block-${index}`} className="note-checklist">
+                    {block.items.map((item, itemIndex) => (
+                      <li
+                        key={`task-${index}-${itemIndex}`}
+                        className="note-task-item"
+                      >
+                        <label className="task-label">
+                          <input
+                            type="checkbox"
+                            className="task-checkbox"
+                            checked={item.checked}
+                            onChange={(event) => {
+                              event.stopPropagation();
+                              onToggleTask?.(card, item.taskIndex);
+                            }}
+                            onClick={(event) => event.stopPropagation()}
+                          />
+                          <span
+                            className={`task-text ${item.checked ? "is-checked" : ""}`}
+                          >
+                            {renderInline(
+                              item.content,
+                              `task-${index}-${itemIndex}`,
+                            )}
+                          </span>
+                        </label>
+                      </li>
+                    ))}
+                  </ul>
                 );
               }
 
@@ -191,45 +301,63 @@ function FlashcardComponent({ card, onEdit, onDelete, onCopy, onTogglePin }) {
               {priorityLabel}
             </span>
           ) : null}
+          {card.read ? (
+            <span className="meta-read-tag">
+              {card.tags.length > 0 || priorityLabel ? (
+                <span className="meta-sep">· </span>
+              ) : null}
+              Read
+            </span>
+          ) : null}
         </div>
 
-      <div className="flashcard-actions">
-        <button
-          type="button"
-          className={`icon-button ${card.pinned ? "is-active" : ""}`}
-          onClick={() => onTogglePin(card)}
-          aria-label={card.pinned ? "Unpin card" : "Pin card"}
-        >
-          <Pin size={14} />
-        </button>
-        <button
-          type="button"
-          className="icon-button"
-          onClick={() => onEdit(card)}
-          aria-label="Edit card"
-        >
-          <Pencil size={14} />
-        </button>
-        <button
-          type="button"
-          className="icon-button"
-          onClick={() => onCopy(card)}
-          aria-label="Copy card"
-        >
-          <Copy size={14} />
-        </button>
-        <button
-          type="button"
-          className="icon-button"
-          onClick={() => onDelete(card)}
-          aria-label="Delete card"
-        >
-          <Trash2 size={14} />
-        </button>
-      </div>
+        <div className="flashcard-actions">
+          <button
+            type="button"
+            className={`icon-button ${card.read ? "is-active is-read-active" : ""}`}
+            onClick={() => onToggleRead(card)}
+            aria-label={card.read ? "Mark as unread" : "Mark as read"}
+            title={card.read ? "Mark as unread" : "Mark as read"}
+          >
+            <CheckCheck size={14} />
+          </button>
+          <button
+            type="button"
+            className={`icon-button ${card.pinned ? "is-active" : ""}`}
+            onClick={() => onTogglePin(card)}
+            aria-label={card.pinned ? "Unpin card" : "Pin card"}
+          >
+            <Pin size={14} />
+          </button>
+          <button
+            type="button"
+            className="icon-button"
+            onClick={() => onEdit(card)}
+            aria-label="Edit card"
+          >
+            <Pencil size={14} />
+          </button>
+          <button
+            type="button"
+            className="icon-button"
+            onClick={() => onCopy(card)}
+            aria-label="Copy card"
+          >
+            <Copy size={14} />
+          </button>
+          <button
+            type="button"
+            className="icon-button"
+            onClick={() => onDelete(card)}
+            aria-label="Delete card"
+          >
+            <Trash2 size={14} />
+          </button>
+        </div>
       </footer>
     </motion.article>
   );
 }
 
 export const Flashcard = memo(FlashcardComponent);
+

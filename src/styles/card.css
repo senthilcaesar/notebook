@@ -45,13 +45,17 @@
   background: var(--note-cream);
   padding: 0.9rem 1.1rem 0.95rem calc(var(--rail-width) + 1rem);
   box-shadow: 1px 2px 5px rgba(60, 40, 20, 0.07);
+  cursor: pointer;
   transition:
+    transform 180ms var(--motion-smooth),
     box-shadow 180ms var(--motion-smooth),
     border-color 180ms ease;
 }
 
 .flashcard:hover {
-  box-shadow: 1px 5px 14px rgba(60, 40, 20, 0.11);
+  transform: translateY(-2px);
+  box-shadow: 1px 6px 16px rgba(60, 40, 20, 0.12);
+  border-color: color-mix(in srgb, var(--rail-color) 40%, var(--color-border));
 }
 
 .flashcard.note-cream {
@@ -115,6 +119,13 @@
   place-items: center;
 }
 
+.flashcard-read-marker {
+  margin-top: 0.35rem;
+  color: var(--color-success);
+  display: grid;
+  place-items: center;
+}
+
 /* ------------------------------------------------------------- contents -- */
 
 .flashcard-title {
@@ -157,6 +168,86 @@
 .note-list {
   padding-left: 1.1rem;
   list-style-type: disc;
+}
+
+.note-checklist {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 0.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.note-task-item {
+  display: flex;
+  align-items: flex-start;
+}
+
+.task-label {
+  display: inline-flex;
+  align-items: flex-start;
+  gap: 0.55rem;
+  cursor: pointer;
+  min-width: 0;
+  font-size: 0.92rem;
+  line-height: 1.6;
+  user-select: none;
+}
+
+.task-checkbox {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 1.05rem;
+  height: 1.05rem;
+  border: 1.5px solid var(--color-border-strong);
+  border-radius: 3px;
+  background: var(--color-surface-strong);
+  margin-top: 0.22rem;
+  flex-shrink: 0;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  transition:
+    background-color 140ms ease,
+    border-color 140ms ease;
+}
+
+.task-checkbox:checked {
+  background: var(--color-accent);
+  border-color: var(--color-accent);
+}
+
+.task-checkbox:checked::after {
+  content: "";
+  width: 0.32rem;
+  height: 0.58rem;
+  border: solid white;
+  border-width: 0 1.5px 1.5px 0;
+  transform: rotate(45deg) translate(-0.5px, -1px);
+}
+
+.task-text {
+  transition: opacity 140ms ease;
+  overflow-wrap: anywhere;
+}
+
+.task-text.is-checked {
+  text-decoration: line-through;
+  opacity: 0.6;
+}
+
+.search-highlight {
+  background: color-mix(in srgb, var(--color-warning) 32%, #fff066);
+  color: var(--color-text);
+  padding: 0.05rem 0.22rem;
+  border-radius: 3px;
+  font-weight: 600;
+}
+
+[data-theme="dark"] .search-highlight {
+  background: color-mix(in srgb, var(--color-warning) 45%, #ffd700);
+  color: #171814;
 }
 
 .note-rich-content > *:last-child {
@@ -258,6 +349,11 @@
   color: var(--color-danger);
 }
 
+.flashcard-meta .meta-read-tag {
+  color: var(--color-success);
+  font-weight: 800;
+}
+
 /* -------------------------------------------------------------- actions -- */
 
 /*
@@ -296,8 +392,20 @@
   transform: none;
 }
 
+.flashcard.is-read {
+  opacity: 0.88;
+}
+
+.flashcard.is-read:hover {
+  opacity: 1;
+}
+
 .flashcard-actions .icon-button.is-active {
   color: var(--rail-color);
+}
+
+.flashcard-actions .icon-button.is-read-active {
+  color: var(--color-success);
 }
 
 /* Touch devices have no hover, so the actions stay put. */

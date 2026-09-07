@@ -36,6 +36,7 @@ export function normalizeCard(doc) {
     date: pickDateValue(data.date),
     priority: data.priority ?? 'none',
     pinned: Boolean(data.pinned),
+    read: Boolean(data.read),
     color: data.color ?? 'cream',
     createdAt: data.createdAt ?? null,
     updatedAt: data.updatedAt ?? null,
@@ -62,6 +63,7 @@ export function buildCardPayload(card) {
     date: card.date || getTodayDateString(),
     priority: card.priority || 'none',
     pinned: Boolean(card.pinned),
+    read: Boolean(card.read),
     color: card.color || 'cream',
   };
 }
@@ -112,6 +114,8 @@ export function parseRichNote(note) {
   const blocks = [];
   let paragraph = [];
   let list = [];
+  let checklist = [];
+  let nextTaskIndex = 0;
 
   function flushParagraph() {
     if (paragraph.length === 0) return;
@@ -131,18 +135,29 @@ export function parseRichNote(note) {
     list = [];
   }
 
+  function flushChecklist() {
+    if (checklist.length === 0) return;
+    blocks.push({
+      type: 'checklist',
+      items: checklist,
+    });
+    checklist = [];
+  }
+
   for (const rawLine of lines) {
     const line = rawLine.trim();
 
     if (!line) {
       flushParagraph();
       flushList();
+      flushChecklist();
       continue;
     }
 
     if (line.startsWith('## ')) {
       flushParagraph();
       flushList();
+      flushChecklist();
       blocks.push({ type: 'heading', level: 2, content: applyInlineFormatting(line.slice(3)) });
       continue;
     }
@@ -150,24 +165,99 @@ export function parseRichNote(note) {
     if (line.startsWith('# ')) {
       flushParagraph();
       flushList();
+      flushChecklist();
       blocks.push({ type: 'heading', level: 1, content: applyInlineFormatting(line.slice(2)) });
+      continue;
+    }
+
+    const taskMatch = line.match(/^[-*]\s*\[([ xX])\]\s*(.*)$/);
+    if (taskMatch) {
+      flushParagraph();
+      flushList();
+      checklist.push({
+        checked: taskMatch[1].toLowerCase() === 'x',
+        content: applyInlineFormatting(taskMatch[2]),
+        taskIndex: nextTaskIndex++,
+      });
       continue;
     }
 
     if (line.startsWith('- ') || line.startsWith('* ')) {
       flushParagraph();
+      flushChecklist();
       list.push(line.slice(2));
       continue;
     }
 
     flushList();
+    flushChecklist();
     paragraph.push(line);
   }
 
   flushParagraph();
   flushList();
+  flushChecklist();
 
   return blocks;
+}
+
+export function toggleTaskInNote(note, targetTaskIndex) {
+  const source = String(note ?? '');
+  const lines = source.split('\n');
+  let currentTaskIndex = 0;
+
+  const updatedLines = lines.map((line) => {
+    const match = line.match(/^(\s*[-*]\s*\[)([ xX])(\]\s*.*)$/);
+    if (match) {
+      if (currentTaskIndex === targetTaskIndex) {
+        const isChecked = match[2].toLowerCase() === 'x';
+        const nextMark = isChecked ? ' ' : 'x';
+        currentTaskIndex++;
+        return `${match[1]}${nextMark}${match[3]}`;
+      }
+      currentTaskIndex++;
+    }
+    return line;
+  });
+
+  return updatedLines.join('\n');
+}
+
+export function splitHighlightedText(text, searchQuery) {
+  const rawText = String(text ?? '');
+  const query = String(searchQuery ?? '').trim();
+  if (!query || !rawText) {
+    return [{ type: 'text', content: rawText }];
+  }
+
+  const terms = query
+    .split(/\s+/)
+    .map((term) => term.trim())
+    .filter(Boolean)
+    .map((term) => term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
+
+  if (terms.length === 0) {
+    return [{ type: 'text', content: rawText }];
+  }
+
+  const pattern = new RegExp(`(${terms.join('|')})`, 'gi');
+  const parts = [];
+  let lastIndex = 0;
+  let match;
+
+  while ((match = pattern.exec(rawText)) !== null) {
+    if (match.index > lastIndex) {
+      parts.push({ type: 'text', content: rawText.slice(lastIndex, match.index) });
+    }
+    parts.push({ type: 'highlight', content: match[0] });
+    lastIndex = pattern.lastIndex;
+  }
+
+  if (lastIndex < rawText.length) {
+    parts.push({ type: 'text', content: rawText.slice(lastIndex) });
+  }
+
+  return parts;
 }
 
 export function getGreeting(name) {
