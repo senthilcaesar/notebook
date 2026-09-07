@@ -152,10 +152,15 @@ function FlashcardComponent({
 
   return (
     <motion.article
-      layout
+      layout="position"
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: 10 }}
+      whileHover={{ y: -2 }}
+      transition={{
+        layout: { duration: 0.25, ease: "easeOut" },
+        opacity: { duration: 0.2 },
+      }}
       className={`flashcard note-${card.color} ${card.pinned ? "is-pinned" : ""} ${card.read ? "is-read" : ""}`}
       style={{ "--rail-color": railColor }}
       onClick={handleCardClick}
@@ -183,12 +188,7 @@ function FlashcardComponent({
 
       <div
         ref={noteRef}
-        className={`flashcard-note ${canExpand && !expanded ? "is-clamped" : ""}`}
-        style={
-          canExpand && !expanded
-            ? { maxHeight: `${COLLAPSED_NOTE_HEIGHT}px` }
-            : undefined
-        }
+        className={`flashcard-note ${!expanded ? "is-clamped" : "is-expanded"} ${canExpand && !expanded ? "has-overflow" : ""}`}
       >
         {richBlocks.length > 0 || safeAttachments.length > 0 ? (
           <div className="note-rich-content">

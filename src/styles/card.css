@@ -47,13 +47,11 @@
   box-shadow: 1px 2px 5px rgba(60, 40, 20, 0.07);
   cursor: pointer;
   transition:
-    transform 180ms var(--motion-smooth),
     box-shadow 180ms var(--motion-smooth),
     border-color 180ms ease;
 }
 
 .flashcard:hover {
-  transform: translateY(-2px);
   box-shadow: 1px 6px 16px rgba(60, 40, 20, 0.12);
   border-color: color-mix(in srgb, var(--rail-color) 40%, var(--color-border));
 }
@@ -77,8 +75,6 @@
   background: var(--note-lavender);
 }
 
-/* ----------------------------------------------------------------- rail -- */
-
 .flashcard-rail {
   position: absolute;
   left: 0;
@@ -86,7 +82,10 @@
   bottom: 0;
   width: var(--rail-width);
   padding-top: 0.95rem;
-  border-right: 2px solid var(--rail-color);
+  background: color-mix(in srgb, var(--rail-color) 8%, var(--color-panel));
+  border-right: 1.5px solid color-mix(in srgb, var(--rail-color) 65%, var(--color-border));
+  border-top-left-radius: 4px;
+  border-bottom-left-radius: 4px;
   text-align: center;
   display: flex;
   flex-direction: column;
@@ -149,7 +148,16 @@
 
 /* Fades the final clipped line rather than slicing through it mid-glyph. */
 .flashcard-note.is-clamped {
+  max-height: 150px;
+}
+
+.flashcard-note.is-clamped.has-overflow {
   mask-image: linear-gradient(to bottom, #000 calc(100% - 1.6rem), transparent);
+}
+
+.flashcard-note.is-expanded {
+  max-height: none;
+  mask-image: none;
 }
 
 .note-paragraph,

@@ -278,7 +278,7 @@ export default function App() {
     }
   }, [filteredCards, currentExpandedIndex]);
 
-  if (authLoading) {
+  if (authLoading || (user && cardsLoading && cards.length === 0)) {
     return <LoadingScreen />;
   }
 
@@ -325,7 +325,7 @@ export default function App() {
           />
 
           <main className="board">
-            {cardsLoading ? (
+            {cardsLoading && cards.length === 0 ? (
               <div className="empty-board">Syncing cards…</div>
             ) : filteredCards.length === 0 ? (
               <div className="empty-board">
@@ -336,7 +336,7 @@ export default function App() {
             ) : (
               <LayoutGroup>
                 <motion.section layout className="flashcard-grid">
-                  <AnimatePresence>
+                  <AnimatePresence initial={false}>
                     {filteredCards.map((card) => (
                       <Flashcard
                         key={card.id}
@@ -398,6 +398,7 @@ export default function App() {
       <TechStackModal
         open={isTechStackOpen}
         onClose={() => setIsTechStackOpen(false)}
+        onCopySuccess={(msg) => pushToast(msg, "success")}
       />
 
       <ToastRegion toasts={toasts} />

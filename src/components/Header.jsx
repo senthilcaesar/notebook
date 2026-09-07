@@ -6,6 +6,7 @@ import {
   Plus,
   Search,
   SunMedium,
+  X,
 } from 'lucide-react';
 
 function SyncIndicator({ state }) {
@@ -69,6 +70,17 @@ export function Header({
           onChange={(event) => onSearchChange(event.target.value)}
           aria-label="Search cards"
         />
+        {searchQuery ? (
+          <button
+            type="button"
+            className="search-clear-btn"
+            onClick={() => onSearchChange("")}
+            aria-label="Clear search query"
+            title="Clear search"
+          >
+            <X size={15} />
+          </button>
+        ) : null}
       </div>
 
       <div className="header-actions">

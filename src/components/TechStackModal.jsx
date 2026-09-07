@@ -1,9 +1,11 @@
-import { useRef } from "react";
+import { useCallback, useState, useRef } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import {
   Braces,
+  Check,
   CloudCog,
   Code2,
+  Copy,
   DatabaseZap,
   PanelsTopLeft,
   Sparkles,
@@ -23,11 +25,34 @@ const ICONS = {
   deploy: CloudCog,
 };
 
-export function TechStackModal({ open, onClose }) {
+export function TechStackModal({ open, onClose, onCopySuccess }) {
   const items = getTechStackItems();
   const panelRef = useRef(null);
+  const [copied, setCopied] = useState(false);
 
   useModalA11y({ open, onClose, containerRef: panelRef });
+
+  const handleCopy = useCallback(async () => {
+    const summary = items
+      .map(
+        (item) =>
+          `• ${item.name} (${item.category})\n  ${item.description}${
+            item.highlights?.length ? `\n  Tags: ${item.highlights.join(", ")}` : ""
+          }`,
+      )
+      .join("\n\n");
+
+    const fullText = `My Notebook Flashcards — Project Tech Stack\n\n${summary}`;
+
+    try {
+      await navigator.clipboard.writeText(fullText);
+      setCopied(true);
+      onCopySuccess?.("Tech stack copied to clipboard");
+      window.setTimeout(() => setCopied(false), 2200);
+    } catch (error) {
+      console.error("Failed to copy tech stack:", error);
+    }
+  }, [items, onCopySuccess]);
 
   return (
     <AnimatePresence>
@@ -41,7 +66,7 @@ export function TechStackModal({ open, onClose }) {
         >
           <motion.section
             ref={panelRef}
-            className="dialog-card tech-stack-card"
+            className="dialog-card tech-stack-card bento-modal-card"
             role="dialog"
             aria-modal="true"
             aria-labelledby="tech-stack-title"
@@ -51,39 +76,72 @@ export function TechStackModal({ open, onClose }) {
             transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
             onClick={(event) => event.stopPropagation()}
           >
-            <div className="modal-header">
+            <div className="modal-header tech-stack-header">
               <div>
-                <p className="eyebrow">Architecture</p>
+                <div className="bento-header-eyebrow">
+                  <span className="eyebrow">Architecture & Tooling</span>
+                  <span className="bento-count-pill">{items.length} Technologies</span>
+                </div>
                 <h2 id="tech-stack-title">Project Tech Stack</h2>
                 <p className="tech-stack-intro">
-                  This app is built using the following technologies:
+                  High-performance stack powering the notebook flashcard application:
                 </p>
               </div>
 
-              <button
-                type="button"
-                className="icon-button"
-                onClick={onClose}
-                aria-label="Close tech stack modal"
-              >
-                <X size={18} />
-              </button>
+              <div className="bento-header-actions">
+                <button
+                  type="button"
+                  className={`button button-secondary bento-copy-btn ${copied ? "is-active" : ""}`}
+                  onClick={handleCopy}
+                  aria-label="Copy tech stack to clipboard"
+                  title="Copy tech stack details"
+                >
+                  {copied ? <Check size={15} /> : <Copy size={15} />}
+                  <span>{copied ? "Copied!" : "Copy Stack"}</span>
+                </button>
+
+                <button
+                  type="button"
+                  className="icon-button"
+                  onClick={onClose}
+                  aria-label="Close tech stack modal"
+                >
+                  <X size={18} />
+                </button>
+              </div>
             </div>
 
-            <div className="tech-stack-list">
+            <div className="bento-grid">
               {items.map((item) => {
                 const Icon = ICONS[item.kind] || Code2;
                 return (
-                  <div key={item.id} className="tech-stack-item">
-                    <div
-                      className={`tech-stack-icon tech-stack-icon-${item.kind}`}
-                    >
-                      <Icon size={18} />
+                  <div
+                    key={item.id}
+                    className={`bento-card bento-card-${item.kind} ${item.span === 2 ? "bento-col-2" : "bento-col-1"}`}
+                  >
+                    <div className="bento-card-top">
+                      <div
+                        className={`bento-icon bento-icon-${item.kind}`}
+                      >
+                        <Icon size={20} />
+                      </div>
+                      <span className="bento-category">{item.category}</span>
                     </div>
-                    <div className="tech-stack-copy">
-                      <strong>{item.name}</strong>
-                      <p>{item.description}</p>
+
+                    <div className="bento-card-body">
+                      <h3 className="bento-title">{item.name}</h3>
+                      <p className="bento-desc">{item.description}</p>
                     </div>
+
+                    {item.highlights?.length ? (
+                      <div className="bento-tags">
+                        {item.highlights.map((tag) => (
+                          <span key={tag} className="bento-tag">
+                            {tag}
+                          </span>
+                        ))}
+                      </div>
+                    ) : null}
                   </div>
                 );
               })}
