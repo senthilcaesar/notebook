@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { AnimatePresence, LayoutGroup } from "framer-motion";
-import { motion } from "framer-motion";
+import { AnimatePresence, LayoutGroup, motion } from "framer-motion";
+import { ArrowLeft, FolderInput, FolderOpen, Plus, X } from "lucide-react";
 import { Header } from "./components/Header.jsx";
 import { Sidebar } from "./components/Sidebar.jsx";
 import { Flashcard } from "./components/Flashcard.jsx";
@@ -10,8 +10,13 @@ import { DeleteConfirmModal } from "./components/DeleteConfirmModal.jsx";
 import { LoginScreen } from "./components/LoginScreen.jsx";
 import { TechStackModal } from "./components/TechStackModal.jsx";
 import { ToastRegion } from "./components/ToastRegion.jsx";
+import { MoveCardModal } from "./components/MoveCardModal.jsx";
+import { FolderModal } from "./components/FolderModal.jsx";
+import { DeleteFolderModal } from "./components/DeleteFolderModal.jsx";
+import { FolderGrid } from "./components/FolderGrid.jsx";
 import { useAuth } from "./hooks/useAuth.js";
 import { useCards } from "./hooks/useCards.js";
+import { useFolders } from "./hooks/useFolders.js";
 import { useLocalStorageState } from "./hooks/useLocalStorageState.js";
 import { buildCopyText, getGreeting, toggleTaskInNote } from "./lib/cards.js";
 
@@ -35,6 +40,16 @@ export default function App() {
     deleteCard,
   } = useCards(user?.uid);
 
+  const {
+    folders,
+    folderList,
+    unfiledCount,
+    allCount,
+    createFolder,
+    renameFolder,
+    deleteFolder,
+  } = useFolders(user?.uid, cards);
+
   const [theme, setTheme] = useLocalStorageState("nb_theme", "light");
   const [sidebarCollapsed, setSidebarCollapsed] = useLocalStorageState(
     "nb_sidebar_collapsed",
@@ -42,10 +57,16 @@ export default function App() {
   );
   const [searchQuery, setSearchQuery] = useState("");
   const [activeTag, setActiveTag] = useState("All");
+  const [activeFolder, setActiveFolder] = useState("__folders_overview__");
   const [expandedCardId, setExpandedCardId] = useState(null);
   const [editingCard, setEditingCard] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [cardToDelete, setCardToDelete] = useState(null);
+  const [cardToMove, setCardToMove] = useState(null);
+  const [isFolderModalOpen, setIsFolderModalOpen] = useState(false);
+  const [folderModalMode, setFolderModalMode] = useState("create");
+  const [folderModalTarget, setFolderModalTarget] = useState("");
+  const [folderToDelete, setFolderToDelete] = useState(null);
   const [authError, setAuthError] = useState("");
   const [isTechStackOpen, setIsTechStackOpen] = useState(false);
   const [isHeaderCondensed, setIsHeaderCondensed] = useState(false);
@@ -80,6 +101,31 @@ export default function App() {
     }, 2600);
   }, []);
 
+  // One-time migration: move existing unfiled cards into the "notes" folder
+  useEffect(() => {
+    if (!user || cardsLoading || cards.length === 0) return;
+    const migrationKey = `nb_migrated_to_notes_${user.uid}`;
+    if (localStorage.getItem(migrationKey)) return;
+
+    const unfiledCards = cards.filter((c) => !(c.folder || "").trim());
+    if (unfiledCards.length > 0) {
+      localStorage.setItem(migrationKey, "true");
+      createFolder("notes");
+      Promise.all(
+        unfiledCards.map((card) => patchCard(card.id, { folder: "notes" })),
+      )
+        .then(() => {
+          pushToast(
+            `Moved ${unfiledCards.length} ${unfiledCards.length === 1 ? "note" : "notes"} to "notes" folder`,
+            "success",
+          );
+        })
+        .catch((err) => {
+          console.error("Migration to notes folder failed:", err);
+        });
+    }
+  }, [user, cardsLoading, cards, createFolder, patchCard, pushToast]);
+
   const tagList = useMemo(() => {
     const counts = new Map([["All", cards.length]]);
     cards.forEach((card) => {
@@ -107,10 +153,19 @@ export default function App() {
           !query ||
           card.title.toLowerCase().includes(query) ||
           card.note.toLowerCase().includes(query) ||
+          (card.folder && card.folder.toLowerCase().includes(query)) ||
           searchableTags.includes(query);
+
         const matchesTag = activeTag === "All" || card.tags.includes(activeTag);
 
-        return matchesSearch && matchesTag;
+        const matchesFolder =
+          activeFolder === "All" ||
+          activeFolder === "__folders_overview__" ||
+          (activeFolder === "__unfiled__"
+            ? !card.folder
+            : (card.folder || "").toLowerCase() === activeFolder.toLowerCase());
+
+        return matchesSearch && matchesTag && matchesFolder;
       })
       .sort((left, right) => {
         if (left.pinned !== right.pinned) {
@@ -119,7 +174,7 @@ export default function App() {
 
         return (right.date || "").localeCompare(left.date || "");
       });
-  }, [activeTag, cards, searchQuery]);
+  }, [activeFolder, activeTag, cards, searchQuery]);
 
   async function handleLogin() {
     try {
@@ -177,7 +232,7 @@ export default function App() {
     }
   }
 
-  // The four handlers below are passed to every <Flashcard>, which is memoised.
+  // The handlers below are passed to every <Flashcard>, which is memoised.
   // They have to keep a stable identity or the memo does nothing.
   const handleTogglePin = useCallback(
     async (card) => {
@@ -233,6 +288,96 @@ export default function App() {
     },
     [patchCard, pushToast],
   );
+
+  const handleOpenMoveModal = useCallback((selectedCard) => {
+    setCardToMove(selectedCard);
+  }, []);
+
+  const handleMoveCard = useCallback(
+    async (card, targetFolder) => {
+      try {
+        const nextFolder = (targetFolder || "").trim();
+        await patchCard(card.id, { folder: nextFolder });
+        if (nextFolder) {
+          pushToast(`Moved to "${nextFolder}"`, "success");
+        } else {
+          pushToast("Moved to Unfiled", "info");
+        }
+      } catch (error) {
+        console.error("Move failed:", error);
+        pushToast("Failed to move note.", "error");
+      }
+    },
+    [patchCard, pushToast],
+  );
+
+  const handleCreateFolder = useCallback(
+    (name) => {
+      try {
+        const created = createFolder(name);
+        pushToast(`Folder "${created}" created`, "success");
+        return created;
+      } catch (err) {
+        pushToast(err.message || "Could not create folder", "error");
+        throw err;
+      }
+    },
+    [createFolder, pushToast],
+  );
+
+  const handleRenameFolder = useCallback(
+    async (newName) => {
+      if (!folderModalTarget) return;
+      try {
+        await renameFolder(folderModalTarget, newName, patchCard);
+        if (activeFolder === folderModalTarget) {
+          setActiveFolder(newName);
+        }
+        pushToast(`Renamed to "${newName}"`, "success");
+      } catch (err) {
+        pushToast(err.message || "Could not rename folder", "error");
+        throw err;
+      }
+    },
+    [activeFolder, folderModalTarget, patchCard, pushToast, renameFolder],
+  );
+
+  const handleDeleteFolderConfirmed = useCallback(async () => {
+    if (!folderToDelete) return;
+    const name = folderToDelete;
+    setFolderToDelete(null);
+    try {
+      await deleteFolder(name, patchCard);
+      if (activeFolder === name) {
+        setActiveFolder("All");
+      }
+      pushToast(`Folder "${name}" deleted`, "info");
+    } catch (err) {
+      console.error("Delete folder error:", err);
+      pushToast("Could not delete folder.", "error");
+    }
+  }, [activeFolder, deleteFolder, folderToDelete, patchCard, pushToast]);
+
+  const handleMoveAllUnfiledToNotes = useCallback(async () => {
+    const unfiledCards = cards.filter((c) => !(c.folder || "").trim());
+    if (unfiledCards.length === 0) return;
+
+    createFolder("notes");
+    try {
+      await Promise.all(
+        unfiledCards.map((card) => patchCard(card.id, { folder: "notes" })),
+      );
+      pushToast(
+        `Moved ${unfiledCards.length} ${unfiledCards.length === 1 ? "note" : "notes"} to "notes" folder`,
+        "success",
+      );
+      setActiveFolder("notes");
+      setActiveTag("All");
+    } catch (err) {
+      console.error("Move all to notes failed:", err);
+      pushToast("Could not move notes.", "error");
+    }
+  }, [cards, createFolder, patchCard, pushToast]);
 
   const handleOpenCard = useCallback((selectedCard) => {
     setExpandedCardId(selectedCard.id);
@@ -317,43 +462,147 @@ export default function App() {
           className={`workspace ${sidebarCollapsed ? "is-sidebar-collapsed" : ""}`}
         >
           <Sidebar
+            folders={folderList}
+            activeFolder={activeFolder}
+            onSelectFolder={(folderName) => {
+              setActiveFolder(folderName);
+              setActiveTag("All");
+            }}
+            onOpenCreateFolder={() => {
+              setFolderModalMode("create");
+              setFolderModalTarget("");
+              setIsFolderModalOpen(true);
+            }}
+            onOpenRenameFolder={(name) => {
+              setFolderModalMode("rename");
+              setFolderModalTarget(name);
+              setIsFolderModalOpen(true);
+            }}
+            onOpenDeleteFolder={(name) => {
+              setFolderToDelete(name);
+            }}
+            unfiledCount={unfiledCount}
+            allCount={allCount}
             tags={tagList}
             activeTag={activeTag}
-            onSelect={setActiveTag}
+            onSelectTag={setActiveTag}
             collapsed={sidebarCollapsed}
             onToggle={() => setSidebarCollapsed((current) => !current)}
           />
 
           <main className="board">
-            {cardsLoading && cards.length === 0 ? (
-              <div className="empty-board">Syncing cards…</div>
-            ) : filteredCards.length === 0 ? (
-              <div className="empty-board">
-                {cards.length === 0
-                  ? "No cards yet. Start with your first note."
-                  : "No cards match the current search and tag filter."}
-              </div>
+            {activeFolder === "__folders_overview__" ? (
+              <FolderGrid
+                folders={folderList}
+                unfiledCount={unfiledCount}
+                onSelectFolder={(folderName) => {
+                  setActiveFolder(folderName);
+                  setActiveTag("All");
+                }}
+                onCreateFolder={() => {
+                  setFolderModalMode("create");
+                  setFolderModalTarget("");
+                  setIsFolderModalOpen(true);
+                }}
+                onRenameFolder={(name) => {
+                  setFolderModalMode("rename");
+                  setFolderModalTarget(name);
+                  setIsFolderModalOpen(true);
+                }}
+                onDeleteFolder={(name) => {
+                  setFolderToDelete(name);
+                }}
+              />
             ) : (
-              <LayoutGroup>
-                <motion.section layout className="flashcard-grid">
-                  <AnimatePresence initial={false}>
-                    {filteredCards.map((card) => (
-                      <Flashcard
-                        key={card.id}
-                        card={card}
-                        searchQuery={searchQuery}
-                        onOpen={handleOpenCard}
-                        onEdit={handleEditCard}
-                        onDelete={setCardToDelete}
-                        onCopy={handleCopy}
-                        onTogglePin={handleTogglePin}
-                        onToggleRead={handleToggleRead}
-                        onToggleTask={handleToggleTask}
-                      />
-                    ))}
-                  </AnimatePresence>
-                </motion.section>
-              </LayoutGroup>
+              <>
+                {activeFolder !== "All" ? (
+                  <div className="folder-view-header">
+                    <div className="folder-view-breadcrumb">
+                      <button
+                        type="button"
+                        className="folder-view-back-btn"
+                        onClick={() => setActiveFolder("__folders_overview__")}
+                        title="Back to all folders"
+                      >
+                        <ArrowLeft size={14} />
+                        <span>Folders</span>
+                      </button>
+                      <span className="folder-view-separator">/</span>
+                      <div className="folder-view-title-wrap">
+                        <FolderOpen size={18} />
+                        <h2 className="folder-view-title">
+                          {activeFolder === "__unfiled__"
+                            ? "Unfiled"
+                            : activeFolder}
+                        </h2>
+                        <span className="folder-view-count">
+                          ({filteredCards.length}{" "}
+                          {filteredCards.length === 1 ? "note" : "notes"})
+                        </span>
+                      </div>
+                    </div>
+                    <div className="board-folder-bar-actions">
+                      {activeFolder === "__unfiled__" &&
+                      filteredCards.length > 0 ? (
+                        <button
+                          type="button"
+                          className="board-folder-action-btn"
+                          onClick={handleMoveAllUnfiledToNotes}
+                          title="Move all unfiled cards into 'notes'"
+                        >
+                          <FolderInput size={13} />
+                          <span>Move all to &ldquo;notes&rdquo;</span>
+                        </button>
+                      ) : null}
+                      <button
+                        type="button"
+                        className="button button-primary"
+                        onClick={() => {
+                          setEditingCard(null);
+                          setIsModalOpen(true);
+                        }}
+                      >
+                        <Plus size={15} />
+                        <span>New Note</span>
+                      </button>
+                    </div>
+                  </div>
+                ) : null}
+
+                {cardsLoading && cards.length === 0 ? (
+                  <div className="empty-board">Syncing cards…</div>
+                ) : filteredCards.length === 0 ? (
+                  <div className="empty-board">
+                    {cards.length === 0
+                      ? "No cards yet. Start with your first note."
+                      : activeFolder !== "All"
+                        ? `No cards in folder "${activeFolder === "__unfiled__" ? "Unfiled" : activeFolder}".`
+                        : "No cards match the current search and tag filter."}
+                  </div>
+                ) : (
+                  <LayoutGroup>
+                    <motion.section layout className="flashcard-grid">
+                      <AnimatePresence initial={false}>
+                        {filteredCards.map((card) => (
+                          <Flashcard
+                            key={card.id}
+                            card={card}
+                            searchQuery={searchQuery}
+                            onOpen={handleOpenCard}
+                            onEdit={handleEditCard}
+                            onDelete={setCardToDelete}
+                            onCopy={handleCopy}
+                            onTogglePin={handleTogglePin}
+                            onToggleRead={handleToggleRead}
+                            onToggleTask={handleToggleTask}
+                            onMoveToFolder={handleOpenMoveModal}
+                          />
+                        ))}
+                      </AnimatePresence>
+                    </motion.section>
+                  </LayoutGroup>
+                )}
+              </>
             )}
           </main>
         </div>
@@ -376,16 +625,57 @@ export default function App() {
         onTogglePin={handleTogglePin}
         onToggleRead={handleToggleRead}
         onToggleTask={handleToggleTask}
+        onMoveToFolder={handleOpenMoveModal}
       />
 
       <CardModal
         open={isModalOpen}
         card={editingCard}
+        defaultFolder={
+          activeFolder === "__folders_overview__" ? "notes" : activeFolder
+        }
+        folders={folders}
         onClose={() => {
           setIsModalOpen(false);
           setEditingCard(null);
         }}
         onSubmit={handleSaveCard}
+        onCreateFolder={handleCreateFolder}
+      />
+
+      <MoveCardModal
+        open={Boolean(cardToMove)}
+        card={cardToMove}
+        folders={folders}
+        onClose={() => setCardToMove(null)}
+        onMove={handleMoveCard}
+        onCreateFolder={handleCreateFolder}
+      />
+
+      <FolderModal
+        open={isFolderModalOpen}
+        mode={folderModalMode}
+        initialName={folderModalTarget}
+        onClose={() => setIsFolderModalOpen(false)}
+        onSubmit={
+          folderModalMode === "rename"
+            ? handleRenameFolder
+            : handleCreateFolder
+        }
+      />
+
+      <DeleteFolderModal
+        open={Boolean(folderToDelete)}
+        folderName={folderToDelete || ""}
+        cardCount={
+          cards.filter(
+            (c) =>
+              (c.folder || "").toLowerCase() ===
+              (folderToDelete || "").toLowerCase(),
+          ).length
+        }
+        onCancel={() => setFolderToDelete(null)}
+        onConfirm={handleDeleteFolderConfirmed}
       />
 
       <DeleteConfirmModal

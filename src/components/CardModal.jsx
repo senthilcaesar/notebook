@@ -5,7 +5,12 @@ import { COLOR_OPTIONS, PRIORITY_OPTIONS } from "../lib/constants.js";
 import { getTodayDateString, parseAttachmentLines } from "../lib/cards.js";
 import { useModalA11y } from "../hooks/useModalA11y.js";
 
-function getInitialForm(card) {
+function getInitialForm(card, defaultFolder = "") {
+  const fallbackFolder =
+    defaultFolder && defaultFolder !== "All" && defaultFolder !== "__unfiled__"
+      ? defaultFolder
+      : "";
+
   if (!card) {
     return {
       title: "",
@@ -13,6 +18,7 @@ function getInitialForm(card) {
       attachmentsText: "",
       date: getTodayDateString(),
       tags: ["General"],
+      folder: fallbackFolder,
       priority: "none",
       pinned: false,
       color: "cream",
@@ -27,15 +33,26 @@ function getInitialForm(card) {
       : "",
     date: card.date || getTodayDateString(),
     tags: card.tags?.length ? card.tags : ["General"],
+    folder: card.folder || "",
     priority: card.priority || "none",
     pinned: Boolean(card.pinned),
     color: card.color || "cream",
   };
 }
 
-export function CardModal({ open, card, onClose, onSubmit }) {
-  const [form, setForm] = useState(getInitialForm(card));
+export function CardModal({
+  open,
+  card,
+  defaultFolder = "",
+  folders = [],
+  onClose,
+  onSubmit,
+  onCreateFolder,
+}) {
+  const [form, setForm] = useState(getInitialForm(card, defaultFolder));
   const [tagDraft, setTagDraft] = useState("");
+  const [isCreatingFolder, setIsCreatingFolder] = useState(false);
+  const [customFolderName, setCustomFolderName] = useState("");
   const titleRef = useRef(null);
   const panelRef = useRef(null);
 
@@ -44,17 +61,26 @@ export function CardModal({ open, card, onClose, onSubmit }) {
   const [lastCard, setLastCard] = useState(card);
   if (card !== lastCard) {
     setLastCard(card);
-    setForm(getInitialForm(card));
+    setForm(getInitialForm(card, defaultFolder));
+    setIsCreatingFolder(false);
+    setCustomFolderName("");
   }
 
   const handleSave = useCallback(() => {
+    let finalFolder = form.folder;
+    if (isCreatingFolder && customFolderName.trim()) {
+      finalFolder = customFolderName.trim();
+      onCreateFolder?.(finalFolder);
+    }
+
     const payload = {
       ...form,
+      folder: finalFolder,
       attachments: parseAttachmentLines(form.attachmentsText),
     };
     delete payload.attachmentsText;
     onSubmit(payload);
-  }, [form, onSubmit]);
+  }, [customFolderName, form, isCreatingFolder, onCreateFolder, onSubmit]);
 
   useModalA11y({
     open,
@@ -229,6 +255,45 @@ export function CardModal({ open, card, onClose, onSubmit }) {
                     placeholder="Type a tag and press Enter"
                   />
                 </div>
+              </div>
+
+              <div className="field">
+                <span>Folder</span>
+                <select
+                  value={isCreatingFolder ? "__new__" : form.folder}
+                  onChange={(event) => {
+                    const val = event.target.value;
+                    if (val === "__new__") {
+                      setIsCreatingFolder(true);
+                    } else {
+                      setIsCreatingFolder(false);
+                      setForm((current) => ({
+                        ...current,
+                        folder: val,
+                      }));
+                    }
+                  }}
+                >
+                  <option value="">Unfiled (No folder)</option>
+                  {folders.map((f) => (
+                    <option key={f} value={f}>
+                      {f}
+                    </option>
+                  ))}
+                  <option value="__new__">+ Create new folder…</option>
+                </select>
+
+                {isCreatingFolder ? (
+                  <div className="folder-create-inline" style={{ marginTop: "0.5rem" }}>
+                    <input
+                      type="text"
+                      value={customFolderName}
+                      onChange={(e) => setCustomFolderName(e.target.value)}
+                      placeholder="Type new folder name"
+                      autoFocus
+                    />
+                  </div>
+                ) : null}
               </div>
 
               <div className="field-row">

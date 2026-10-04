@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { CheckCheck, ChevronLeft, ChevronRight, Copy, Link2, Pencil, Pin, Trash2, X } from "lucide-react";
+import { CheckCheck, ChevronLeft, ChevronRight, Copy, Folder, FolderInput, Link2, Pencil, Pin, Trash2, X } from "lucide-react";
 import { parseRichNote, splitHighlightedText, toSafeHref } from "../lib/cards.js";
 import { getRailDate, getTagColorVar } from "../lib/tags.js";
 import { useModalA11y } from "../hooks/useModalA11y.js";
@@ -29,6 +29,7 @@ export function ExpandedCardModal({
   onTogglePin,
   onToggleRead,
   onToggleTask,
+  onMoveToFolder,
 }) {
   const panelRef = useRef(null);
 
@@ -371,15 +372,21 @@ export function ExpandedCardModal({
 
               <footer className="expanded-card-footer">
                 <div className="expanded-card-meta">
+                  {card.folder ? (
+                    <span className="meta-folder">
+                      <Folder size={12} aria-hidden="true" />
+                      <span>{card.folder}</span>
+                    </span>
+                  ) : null}
                   {(card.tags || []).map((tag, index) => (
                     <span key={`${card.id}-${tag}`}>
-                      {index > 0 ? <span className="meta-sep">· </span> : null}
+                      {index > 0 || card.folder ? <span className="meta-sep">· </span> : null}
                       {tag}
                     </span>
                   ))}
                   {priorityLabel ? (
                     <span className={`meta-priority-${card.priority}`}>
-                      {card.tags?.length > 0 ? (
+                      {card.tags?.length > 0 || card.folder ? (
                         <span className="meta-sep">· </span>
                       ) : null}
                       {priorityLabel}
@@ -405,6 +412,15 @@ export function ExpandedCardModal({
                   >
                     <Pin size={15} />
                     <span>{card.pinned ? "Pinned" : "Pin"}</span>
+                  </button>
+                  <button
+                    type="button"
+                    className="button button-secondary"
+                    onClick={() => onMoveToFolder?.(card)}
+                    aria-label="Move note to folder"
+                  >
+                    <FolderInput size={15} />
+                    <span>Move</span>
                   </button>
                   <button
                     type="button"

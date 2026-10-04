@@ -22,9 +22,12 @@ src/
 ├── App.jsx                State, filtering, card CRUD handlers
 ├── components/
 │   ├── Header.jsx         Brand, search, sync dot, theme, account
-│   ├── Sidebar.jsx        Tag filter list with counts
+│   ├── Sidebar.jsx        Folders & tags filter list with counts and folder management
 │   ├── Flashcard.jsx      The card (see "Card design")
-│   ├── CardModal.jsx      Create / edit form
+│   ├── CardModal.jsx      Create / edit form (with folder select)
+│   ├── MoveCardModal.jsx  Quick move to folder dialog
+│   ├── FolderModal.jsx    Create / rename folder dialog
+│   ├── DeleteFolderModal.jsx
 │   ├── DeleteConfirmModal.jsx
 │   ├── TechStackModal.jsx
 │   ├── ToastRegion.jsx
@@ -32,6 +35,7 @@ src/
 ├── hooks/
 │   ├── useAuth.js         Google sign-in, auth state
 │   ├── useCards.js        Firestore subscription + mutations
+│   ├── useFolders.js      Folder management & sync with cards
 │   ├── useModalA11y.js    Escape, focus trap, focus restore, scroll lock
 │   └── useLocalStorageState.js
 ├── lib/
@@ -78,6 +82,7 @@ Requires Node >= 20.19 (Vite 8).
   attachments string[]        one URL per line in the form
   tags        string[]        free-form; first tag drives the card's rail colour
   category    string          legacy mirror of tags[0], lowercased
+  folder      string          optional folder name (empty string for unfiled)
   date        "YYYY-MM-DD"
   priority    none|low|medium|high|critical
   pinned      boolean

@@ -362,6 +362,14 @@
   font-weight: 800;
 }
 
+.flashcard-meta .meta-folder {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.28rem;
+  color: var(--color-accent-strong);
+  font-weight: 800;
+}
+
 /* -------------------------------------------------------------- actions -- */
 
 /*

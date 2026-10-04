@@ -1,19 +1,12 @@
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { motion } from "framer-motion";
-import { CheckCheck, Copy, Link2, Pencil, Pin, Trash2 } from "lucide-react";
+import { CheckCheck, Copy, FolderInput, Link2, Pencil, Pin, Trash2 } from "lucide-react";
 import { parseRichNote, splitHighlightedText, toSafeHref } from "../lib/cards.js";
 import { getRailDate, getTagColorVar } from "../lib/tags.js";
 
 // Roughly six lines of note before the card collapses and offers "Read more".
 // Matches .flashcard-note's 0.92rem/1.7 in card.css.
 const COLLAPSED_NOTE_HEIGHT = 150;
-
-const PRIORITY_LABELS = {
-  low: "Low",
-  medium: "Medium",
-  high: "High",
-  critical: "Critical",
-};
 
 function FlashcardComponent({
   card,
@@ -25,6 +18,7 @@ function FlashcardComponent({
   onTogglePin,
   onToggleRead,
   onToggleTask,
+  onMoveToFolder,
 }) {
   const [expanded, setExpanded] = useState(false);
   const [canExpand, setCanExpand] = useState(false);
@@ -144,11 +138,6 @@ function FlashcardComponent({
       ),
     );
   }, [card.title, searchQuery]);
-
-  const priorityLabel =
-    card.priority && card.priority !== "none"
-      ? PRIORITY_LABELS[card.priority] || card.priority
-      : null;
 
   return (
     <motion.article
@@ -288,29 +277,6 @@ function FlashcardComponent({
       ) : null}
 
       <footer className="flashcard-footer">
-        <div className="flashcard-meta">
-          {card.tags.map((tag, index) => (
-            <span key={`${card.id}-${tag}`}>
-              {index > 0 ? <span className="meta-sep">· </span> : null}
-              {tag}
-            </span>
-          ))}
-          {priorityLabel ? (
-            <span className={`meta-priority-${card.priority}`}>
-              {card.tags.length > 0 ? <span className="meta-sep">· </span> : null}
-              {priorityLabel}
-            </span>
-          ) : null}
-          {card.read ? (
-            <span className="meta-read-tag">
-              {card.tags.length > 0 || priorityLabel ? (
-                <span className="meta-sep">· </span>
-              ) : null}
-              Read
-            </span>
-          ) : null}
-        </div>
-
         <div className="flashcard-actions">
           <button
             type="button"
@@ -328,6 +294,15 @@ function FlashcardComponent({
             aria-label={card.pinned ? "Unpin card" : "Pin card"}
           >
             <Pin size={14} />
+          </button>
+          <button
+            type="button"
+            className="icon-button"
+            onClick={() => onMoveToFolder?.(card)}
+            aria-label="Move card to folder"
+            title="Move to folder"
+          >
+            <FolderInput size={14} />
           </button>
           <button
             type="button"
